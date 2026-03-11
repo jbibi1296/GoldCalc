@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#141416">
+<title>Gold Fix Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --body-top: #3c3c3e;
+  --body-mid: #2a2a2c;
+  --body-bot: #1e1e20;
+  --key-face: #3e3e42;
+  --key-top: #4a4a4f;
+  --key-shadow: #111;
+  --key-press: #353538;
+  --key-gold-face: #b8860b;
+  --key-gold-top: #d4a017;
+  --key-gold-press: #9a6f09;
+  --key-mode-face: #2c3e50;
+  --key-mode-top: #34495e;
+  --lcd-bg: #1a2a1a;
+  --lcd-bg2: #0f1f0f;
+  --lcd-green: #a0e878;
+  --lcd-green-dim: #3d6e2a;
+  --lcd-amber: #f0b840;
+  --bezel: #222224;
+  --sub-label: #6a6a72;
+  --text-white: #f0f0f4;
+  --label-color: #b0b0b8;
+}
+
+body {
+  background: #141416;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 50% 20%, rgba(180,130,10,0.06) 0%, transparent 65%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.008) 0px, rgba(255,255,255,0.008) 1px, transparent 1px, transparent 8px);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow', sans-serif;
+  padding: 2rem 1rem;
+}
+
+/* ── Calculator Shell ── */
+.calc-shell {
+  width: 420px;
+  background: linear-gradient(160deg, var(--body-top) 0%, var(--body-mid) 40%, var(--body-bot) 100%);
+  border-radius: 28px 28px 40px 40px;
+  padding: 0 0 28px;
+  position: relative;
+  box-shadow:
+    0 2px 0 #4f4f54 inset,
+    0 -3px 0 #111 inset,
+    3px 0 0 #333 inset,
+    -3px 0 0 #333 inset,
+    0 30px 80px rgba(0,0,0,0.85),
+    0 8px 20px rgba(0,0,0,0.6),
+    0 1px 0 rgba(255,255,255,0.06);
+  user-select: none;
+}
+
+.calc-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to right, rgba(255,255,255,0.04) 0%, transparent 15%, transparent 85%, rgba(255,255,255,0.02) 100%);
+  pointer-events: none;
+}
+
+/* Screws */
+.screw {
+  position: absolute;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #3a3a3e, #111);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.06);
+}
+.screw::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 20%; right: 20%;
+  height: 1px;
+  background: rgba(0,0,0,0.6);
+  transform: translateY(-50%);
+}
+.s-tl { top: 14px; left: 16px; }
+.s-tr { top: 14px; right: 16px; }
+.s-bl { bottom: 14px; left: 16px; }
+.s-br { bottom: 14px; right: 16px; }
+
+/* Brand strip */
+.brand-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px 10px;
+}
+.brand-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--sub-label);
+}
+.brand-model {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: #555558;
+}
+.settings-btn {
+  background: none;
+  border: none;
+  color: var(--sub-label);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+.settings-btn:hover { color: var(--lcd-amber); background: rgba(255,255,255,0.05); }
+
+/* ── LCD Display ── */
+.lcd-bezel {
+  margin: 0 18px 18px;
+  background: var(--bezel);
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow:
+    inset 0 3px 8px rgba(0,0,0,0.8),
+    inset 0 1px 2px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.05);
+}
+.lcd-screen {
+  background: linear-gradient(160deg, var(--lcd-bg) 0%, var(--lcd-bg2) 100%);
+  border-radius: 6px;
+  padding: 12px 14px 10px;
+  min-height: 170px;
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5), inset 0 1px 3px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+.lcd-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.lcd-screen::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 45%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  pointer-events: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.lcd-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+.lcd-price-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  color: var(--lcd-green-dim);
+  text-transform: uppercase;
+}
+.lcd-live-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  color: var(--lcd-green-dim);
+  transition: color 0.3s;
+}
+.lcd-live-badge.live   { color: var(--lcd-green); animation: blink 2.5s step-end infinite; }
+.lcd-live-badge.loading{ color: var(--lcd-amber); animation: blink 0.6s step-end infinite; }
+.lcd-live-badge.error  { color: #e06060; }
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+.lcd-spot-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 2px;
+}
+.spot-currency {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  color: var(--lcd-green);
+  opacity: 0.7;
+  line-height: 1;
+}
+.lcd-spot-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 2rem;
+  color: var(--lcd-green);
+  letter-spacing: 0.06em;
+  width: 130px;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(100,220,60,0.4);
+  -moz-appearance: textfield;
+}
+.lcd-spot-input::-webkit-outer-spin-button,
+.lcd-spot-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.lcd-timestamp {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.48rem;
+  color: var(--lcd-green-dim);
+  letter-spacing: 0.1em;
+  margin-top: 3px;
+  min-height: 0.7rem;
+}
+
+.lcd-refresh-btn {
+  background: none;
+  border: none;
+  color: var(--lcd-green-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+  display: block;
+  transition: color 0.2s;
+}
+.lcd-refresh-btn:hover { color: var(--lcd-green); }
+
+.lcd-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lcd-green-dim), transparent);
+  margin: 8px 0;
+  opacity: 0.4;
+}
+
+.lcd-result-area { min-height: 70px; }
+.lcd-result-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  color: var(--lcd-green-dim);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.lcd-result-price {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 2.4rem;
+  color: var(--lcd-amber);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 14px rgba(240,184,64,0.5);
+  line-height: 1;
+  display: none;
+}
+.lcd-result-price.visible { display: block; animation: slideIn 0.25s ease; }
+@keyframes slideIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+.lcd-placeholder {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.58rem;
+  color: var(--lcd-green-dim);
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+.lcd-breakdown {
+  margin-top: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+}
+.lcd-breakdown.visible { display: flex; }
+.bd-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  color: var(--lcd-green-dim);
+  letter-spacing: 0.04em;
+}
+.bd-row .bd-val { color: rgba(160,232,120,0.55); }
+
+/* ── Keypad ── */
+.keypad {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.key-section-label {
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--sub-label);
+  margin-bottom: 5px;
+}
+.key-row { display: flex; gap: 8px; }
+
+/* Key base */
+.key {
+  flex: 1;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  color: #c8c8d0;
+  text-transform: uppercase;
+  position: relative;
+  padding: 0;
+  outline: none;
+}
+.key-inner {
+  background: linear-gradient(170deg, var(--key-top), var(--key-face));
+  border-radius: 8px;
+  padding: 10px 6px 9px;
+  border-top: 1px solid rgba(255,255,255,0.09);
+  border-bottom: 3px solid var(--key-shadow);
+  transition: all 0.08s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 54px;
+}
+.key:active .key-inner {
+  background: linear-gradient(170deg, var(--key-press), var(--key-face));
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+}
+.key.active .key-inner {
+  background: linear-gradient(170deg, #1c1c1e, #141416);
+  border-bottom: 1px solid #0a0a0b;
+}
+.key.active .key-label  { color: var(--lcd-amber); text-shadow: 0 0 8px rgba(240,184,64,0.5); }
+.key.active .key-sublabel { color: rgba(240,184,64,0.45); }
+
+.key-label    { font-size: 0.9rem;  font-weight: 700; line-height: 1; }
+.key-sublabel { font-size: 0.5rem;  font-weight: 600; letter-spacing: 0.12em; color: var(--sub-label); line-height: 1; }
+
+/* Mode keys (blue tint) */
+.key-mode .key-inner { background: linear-gradient(170deg, var(--key-mode-top), var(--key-mode-face)); }
+.key-mode:active .key-inner { background: linear-gradient(170deg, #1e2c3a, #1a2434); }
+
+/* Weight input block */
+.key-input-display {
+  background: linear-gradient(170deg, #1c1c1e, #141416);
+  border-radius: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid rgba(0,0,0,0.6);
+  border-bottom: 2px solid #0a0a0b;
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 2;
+}
+.weight-number-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.4rem;
+  color: var(--lcd-green);
+  width: 100%;
+  -moz-appearance: textfield;
+  letter-spacing: 0.06em;
+}
+.weight-number-input::-webkit-outer-spin-button,
+.weight-number-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.weight-number-input::placeholder { color: var(--lcd-green-dim); opacity: 0.6; }
+
+/* Unit toggle column */
+.unit-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.unit-col .key .key-inner { min-height: 0; padding: 10px 4px; }
+
+/* ── Numpad ── */
+.numpad-section { padding: 0 16px; }
+
+/* Input target selector */
+.key-spot .key-inner { background: linear-gradient(170deg, #3a3010, #28220a); border-bottom-color: #0e0c04; }
+.key-spot.active .key-inner { background: linear-gradient(170deg, #1a1608, #0e0c04); border-bottom: 1px solid #060504; }
+.key-spot.active .key-label { color: var(--lcd-amber); text-shadow: 0 0 8px rgba(240,184,64,0.6); }
+.key-spot.active .key-sublabel { color: rgba(240,184,64,0.45); }
+.key-wght.active .key-inner { background: linear-gradient(170deg, #0a1c0a, #071407); border-bottom: 1px solid #030903; }
+.key-wght.active .key-label { color: var(--lcd-green); text-shadow: 0 0 8px rgba(100,220,60,0.5); }
+.key-wght.active .key-sublabel { color: rgba(100,220,60,0.4); }
+
+/* Spot display cursor (shown when numpad targets spot) */
+.spot-cursor {
+  display: none;
+  width: 2px;
+  height: 1.6rem;
+  background: var(--lcd-green);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: cursorBlink 1s step-end infinite;
+}
+.spot-editing .spot-cursor { display: inline-block; }
+.spot-editing .lcd-live-badge,
+.spot-editing .lcd-refresh-btn { display: none; }
+.spot-editing #spotDisplay { text-shadow: 0 0 14px rgba(100,220,60,0.6); }
+.numpad-display-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 8px;
+}
+.weight-display-box {
+  flex: 1;
+  background: linear-gradient(170deg, #1c1c1e, #141416);
+  border-radius: 8px;
+  padding: 8px 14px;
+  border-top: 1px solid rgba(0,0,0,0.6);
+  border-bottom: 2px solid #0a0a0b;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 58px;
+}
+.weight-display-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sub-label);
+  margin-bottom: 3px;
+}
+.weight-display-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.7rem;
+  color: var(--lcd-green);
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(100,220,60,0.35);
+}
+.weight-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.4rem;
+  background: var(--lcd-green);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: cursorBlink 1s step-end infinite;
+}
+@keyframes cursorBlink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+.nkey {
+  border: none;
+  cursor: pointer;
+  border-radius: 7px;
+  padding: 0;
+  outline: none;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.nkey-inner {
+  background: linear-gradient(170deg, #525258, #3a3a3e);
+  border-radius: 7px;
+  padding: 10px 6px 9px;
+  border-top: 1px solid rgba(255,255,255,0.11);
+  border-bottom: 3px solid #0e0e10;
+  transition: all 0.07s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 50px;
+}
+.nkey:active .nkey-inner {
+  background: linear-gradient(170deg, #2e2e32, #262628);
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+}
+.nkey-digit {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #e0e0e8;
+  line-height: 1;
+}
+.nkey-sub {
+  font-size: 0.45rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--sub-label);
+  text-transform: uppercase;
+}
+.nkey-clear .nkey-inner { background: linear-gradient(170deg, #7a3a3a, #5a2828); border-bottom-color: #2a0e0e; }
+.nkey-clear:active .nkey-inner { background: linear-gradient(170deg, #4a2020, #3a1818); }
+.nkey-clear .nkey-digit { color: #ffb3b3; font-size: 0.8rem; letter-spacing: 0.1em; }
+.nkey-back .nkey-inner { background: linear-gradient(170deg, #5a4a1a, #3e3210); border-bottom-color: #1a1206; }
+.nkey-back:active .nkey-inner { background: linear-gradient(170deg, #3a2e10, #2a2208); }
+.nkey-back .nkey-digit { color: var(--lcd-amber); font-size: 1.1rem; }
+
+/* CALCULATE button */
+.calc-btn-wrap { padding: 0 16px; margin-top: 2px; }
+.calc-main-btn {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 0;
+  outline: none;
+}
+.calc-main-inner {
+  background: linear-gradient(160deg, #d4a017 0%, #b8860b 50%, #9a6f09 100%);
+  border-radius: 10px;
+  padding: 15px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 3px solid #6b4c06;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.38em;
+  color: #fff8e0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  transition: all 0.08s;
+  text-transform: uppercase;
+}
+.calc-main-btn:active .calc-main-inner {
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+  background: linear-gradient(160deg, #b8860b, #9a6f09);
+}
+
+/* Error strip */
+.error-strip {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.56rem;
+  color: #e06060;
+  letter-spacing: 0.14em;
+  text-align: center;
+  padding: 6px 16px 0;
+  min-height: 20px;
+  display: none;
+}
+.error-strip.visible { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* Feet */
+.feet {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 30px 0;
+}
+.foot {
+  width: 24px; height: 5px;
+  background: linear-gradient(180deg, #111, #0a0a0a);
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ══ SETTINGS MODAL ══ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  backdrop-filter: blur(5px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+.modal {
+  background: linear-gradient(160deg, #2e2e32, #222224);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 2px 0 rgba(255,255,255,0.05) inset;
+  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: sticky;
+  top: 0;
+  background: linear-gradient(160deg, #2e2e32, #222224);
+  z-index: 1;
+}
+.modal-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-white);
+}
+.modal-close {
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: var(--label-color);
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.12); color: white; }
+
+.modal-body { padding: 16px 20px 20px; }
+
+.settings-section { margin-bottom: 20px; }
+.settings-section-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--sub-label);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+
+/* Labor / Rate rows */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 11px 14px;
+  margin-bottom: 7px;
+}
+.setting-row-label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-white);
+  line-height: 1.2;
+}
+.setting-row-sublabel {
+  font-size: 0.6rem;
+  color: var(--sub-label);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+.setting-input-group { display: flex; align-items: center; gap: 5px; }
+.setting-currency {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--lcd-green-dim);
+}
+.setting-input {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--lcd-green);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  padding: 5px 8px;
+  width: 75px;
+  outline: none;
+  -moz-appearance: textfield;
+  transition: border-color 0.2s;
+  text-align: right;
+}
+.setting-input::-webkit-outer-spin-button,
+.setting-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.setting-input:focus { border-color: rgba(100,220,60,0.4); }
+.setting-unit {
+  font-size: 0.6rem;
+  color: var(--sub-label);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Fee list */
+.fee-list { display: flex; flex-direction: column; gap: 7px; }
+.fee-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+.fee-item-name { font-size: 0.85rem; font-weight: 500; color: var(--text-white); }
+.fee-item-applies {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(240,184,64,0.1);
+  color: var(--lcd-amber);
+  border: 1px solid rgba(240,184,64,0.2);
+}
+.fee-item-amount {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--lcd-green);
+}
+.fee-item-actions { display: flex; gap: 4px; }
+.fee-action-btn {
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: var(--label-color);
+  width: 26px; height: 26px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.fee-action-btn:hover { background: rgba(255,255,255,0.14); color: white; }
+.fee-action-btn.del:hover { background: rgba(200,60,60,0.25); color: #ff8080; }
+
+/* Add fee form */
+.add-fee-form {
+  background: rgba(0,0,0,0.2);
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  display: none;
+}
+.add-fee-form.open { display: block; animation: fadeIn 0.2s ease; }
+
+/* Fee Type toggle */
+.fee-type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.fee-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.fee-type-btn:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.18); }
+.fee-type-btn.active {
+  background: rgba(240,184,64,0.1);
+  border-color: rgba(240,184,64,0.45);
+  box-shadow: 0 0 10px rgba(240,184,64,0.1);
+}
+.fee-type-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--sub-label);
+}
+.fee-type-btn.active .fee-type-icon { color: var(--lcd-amber); }
+.fee-type-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--label-color);
+}
+.fee-type-btn.active .fee-type-name { color: var(--lcd-amber); }
+.fee-type-desc {
+  font-size: 0.58rem;
+  color: var(--sub-label);
+  letter-spacing: 0.06em;
+}
+
+.form-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.form-row:last-child { margin-bottom: 0; }
+.form-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.form-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sub-label);
+}
+.form-input {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.85rem;
+  padding: 6px 8px;
+  outline: none;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+  width: 100%;
+}
+.form-input::-webkit-outer-spin-button,
+.form-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.form-input:focus { border-color: rgba(240,184,64,0.4); }
+.form-select {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: var(--text-white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.82rem;
+  padding: 7px 28px 7px 8px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+.form-select option { background: #2a2a2c; color: var(--text-white); }
+
+.modal-action-btns { display: flex; gap: 8px; margin-top: 10px; }
+.modal-btn {
+  flex: 1;
+  padding: 9px;
+  border-radius: 7px;
+  border: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.modal-btn-primary {
+  background: linear-gradient(135deg, #b8860b, #9a6f09);
+  color: #fff8e0;
+}
+.modal-btn-primary:hover { background: linear-gradient(135deg, #d4a017, #b8860b); }
+.modal-btn-secondary {
+  background: rgba(255,255,255,0.07);
+  color: var(--label-color);
+}
+.modal-btn-secondary:hover { background: rgba(255,255,255,0.12); color: white; }
+
+.add-fee-trigger {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 7px;
+  border: 1px dashed rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--sub-label);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.add-fee-trigger:hover {
+  border-color: rgba(240,184,64,0.4);
+  color: var(--lcd-amber);
+  background: rgba(240,184,64,0.04);
+}
+/* ══ MOBILE RESPONSIVE ══ */
+@media (max-width: 480px) {
+  body {
+    padding: 0;
+    align-items: flex-start;
+    min-height: 100dvh;
+    background-attachment: fixed;
+  }
+
+  .calc-shell {
+    width: 100%;
+    min-height: 100dvh;
+    border-radius: 0;
+    padding: 0 0 env(safe-area-inset-bottom, 16px);
+    box-shadow: none;
+  }
+
+  /* Screws hidden on mobile */
+  .screw { display: none; }
+
+  /* Brand strip */
+  .brand-strip {
+    padding: 12px 20px 8px;
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  }
+
+  /* LCD bezel */
+  .lcd-bezel {
+    margin: 0 12px 12px;
+  }
+  .lcd-screen {
+    padding: 10px 12px 12px;
+  }
+  .lcd-spot-input {
+    font-size: 1.7rem;
+    width: 110px;
+  }
+  .lcd-result-price {
+    font-size: 2rem;
+  }
+
+  /* Keypad section */
+  .keypad {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .key-inner {
+    padding: 8px 4px 7px;
+    min-height: 44px; /* iOS touch target minimum */
+  }
+  .key-label { font-size: 0.95rem; }
+  .key-sublabel { font-size: 0.48rem; }
+
+  /* Numpad */
+  .numpad-section {
+    padding: 0 12px;
+  }
+  .nkey-inner {
+    min-height: 48px; /* comfortable touch target */
+    padding: 8px 4px 7px;
+  }
+  .nkey-digit { font-size: 1.2rem; }
+
+  /* Weight display */
+  .weight-display-box {
+    padding: 6px 12px;
+    min-height: 52px;
+  }
+  .weight-display-value { font-size: 1.5rem; }
+
+  /* Unit toggle */
+  .unit-col { flex: 0 0 64px !important; }
+
+  /* Calc button */
+  .calc-main-btn {
+    margin: 0 12px;
+  }
+  .calc-main-inner {
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+
+  /* Feet hidden */
+  .feet { display: none; }
+
+  /* Error strip */
+  .error-strip { margin: 6px 12px; }
+
+  /* Tape overlay — full screen on mobile, scrollable */
+  .tape-overlay {
+    position: fixed;
+    border-radius: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tape-body {
+    width: 92%;
+    min-height: auto;
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none !important;
+    margin: 0 auto;
+    animation: tapePrintMobile 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes tapePrintMobile {
+    from { opacity: 0; transform: translateY(-30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .tape-overlay.printing {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 0 40px;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .tape-total-value { font-size: 2rem; }
+  .tape-content { padding: 24px 22px 50px; }
+
+  /* Modal full-screen on mobile */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .modal {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 18px 18px 0 0;
+    max-height: 88dvh;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+
+  /* Settings inputs larger touch targets */
+  .setting-input { font-size: 1rem; padding: 8px 10px; }
+  .form-input    { font-size: 1rem; padding: 8px 10px; }
+  .form-select   { font-size: 1rem; padding: 9px 28px 9px 10px; }
+  .modal-btn     { padding: 11px 18px; font-size: 0.82rem; }
+  .fee-action-btn { width: 32px; height: 32px; }
+
+  /* Tape slot hidden on mobile */
+  .tape-slot { display: none; }
+}
+
+/* Also handle landscape phones */
+@media (max-width: 768px) and (orientation: landscape) {
+  body { padding: 0; align-items: flex-start; }
+  .calc-shell {
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    padding: 0 0 8px;
+  }
+  .brand-strip    { grid-column: 1 / -1; }
+  .lcd-bezel      { grid-column: 1; grid-row: 2 / 5; margin: 0 8px 8px 12px; }
+  .keypad         { grid-column: 2; grid-row: 2; padding: 0 12px 0 0; }
+  .numpad-section { grid-column: 2; grid-row: 3 / 5; padding: 0 12px 0 0; }
+  .calc-btn-wrap  { grid-column: 1 / -1; padding: 0 12px; margin-top: 4px !important; }
+  .error-strip    { grid-column: 1 / -1; margin: 0 12px; }
+  .feet { display: none; }
+  .screw { display: none; }
+}
+
+.tape-slot {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 8px;
+  background: #111;
+  border-radius: 0 0 4px 4px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 #333;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 1px 8px;
+  z-index: 10;
+}
+.tape-slot-line {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 1px;
+}
+
+/* ── Receipt Tape ── */
+/* ── Receipt Tape ── */
+.tape-overlay {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 50;
+  border-radius: 28px 28px 40px 40px;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+}
+.tape-overlay.printing {
+  display: block;
+}
+.tape-body {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%) translateY(-102%);
+  width: 86%;
+  min-height: 90%;
+  background: #f7f2e8;
+  background-image:
+    repeating-linear-gradient(
+      transparent,
+      transparent 23px,
+      rgba(0,0,0,0.04) 23px,
+      rgba(0,0,0,0.04) 24px
+    );
+  border-radius: 0 0 4px 4px;
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.7),
+    0 3px 0 rgba(0,0,0,0.4),
+    inset 0 0 0 1px rgba(0,0,0,0.06);
+  animation: tapePrint 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  overflow: visible;
+}
+
+/* Serrated bottom edge via pseudo-element */
+.tape-body::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 0; right: 0;
+  height: 14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='14'%3E%3Cpolygon points='0,0 20,0 20,14 10,6 0,14' fill='%23f7f2e8'/%3E%3C/svg%3E") repeat-x;
+  background-size: 20px 14px;
+}
+
+@keyframes tapePrint {
+  from { transform: translateX(-50%) translateY(-102%); }
+  to   { transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes tapeRetract {
+  from { transform: translateX(-50%) translateY(0); }
+  to   { transform: translateX(-50%) translateY(-105%); }
+}
+
+.tape-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,0.18);
+  background: rgba(0,0,0,0.07);
+  color: #444;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  z-index: 2;
+  font-family: sans-serif;
+}
+.tape-close:hover { background: rgba(0,0,0,0.18); color: #111; }
+
+.tape-content {
+  font-family: 'Share Tech Mono', monospace;
+  color: #1a1a1a;
+  padding: 28px 28px 50px;
+}
+
+/* Tape header */
+.tape-header {
+  text-align: center;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 2px dashed rgba(0,0,0,0.18);
+}
+.tape-brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #111;
+}
+.tape-timestamp {
+  font-size: 0.65rem;
+  color: #888;
+  margin-top: 3px;
+  letter-spacing: 0.08em;
+}
+.tape-mode-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 16px;
+  border-radius: 3px;
+  background: #1a1a1a;
+  color: #f7f2e8;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Tape rows */
+.tape-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 5px 0;
+  font-size: 0.82rem;
+  color: #333;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  animation: tapeLine 0.25s ease forwards;
+  gap: 8px;
+}
+.tape-row-label { flex: 1; }
+.tape-row.tape-divider {
+  border-top: 1px dashed rgba(0,0,0,0.2);
+  margin-top: 6px;
+  padding-top: 10px;
+}
+.tape-row.tape-section-divider {
+  border-top: 1px solid rgba(0,0,0,0.15);
+  margin-top: 4px;
+  padding-top: 6px;
+  font-size: 0.72rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.tape-total-row {
+  margin-top: 12px;
+  padding: 14px 0 12px;
+  border-top: 2.5px solid #111;
+  border-bottom: 2.5px solid #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0;
+  animation: tapeLine 0.3s ease forwards;
+}
+.tape-total-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #555;
+}
+.tape-total-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.tape-row-val {
+  font-weight: 600;
+  color: #111;
+  text-align: right;
+  white-space: nowrap;
+}
+.tape-footer {
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(0,0,0,0.15);
+  font-size: 0.6rem;
+  color: #aaa;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: tapeLine 0.3s ease forwards;
+}
+
+@keyframes tapeLine {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+<body>
+
+<!-- ══ CALCULATOR DEVICE ══ -->
+<div class="calc-shell">
+  <div class="screw s-tl"></div>
+  <div class="screw s-tr"></div>
+  <div class="screw s-bl"></div>
+  <div class="screw s-br"></div>
+
+  <!-- Tape slot at top -->
+  <div class="tape-slot" id="tapeSlot">
+    <div class="tape-slot-line"></div>
+    <div class="tape-slot-line"></div>
+  </div>
+
+  <!-- Receipt tape (hidden until calculate) -->
+  <div class="tape-overlay" id="tapeOverlay">
+    <div class="tape-body" id="tapeBody">
+      <button class="tape-close" id="tapeClose">✕</button>
+      <div class="tape-content" id="tapeContent"></div>
+    </div>
+  </div>
+
+  <div class="brand-strip">
+    <div class="brand-name">GoldFix</div>
+    <div class="brand-model">GF-1 Pro</div>
+    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+
+  <!-- LCD -->
+  <div class="lcd-bezel">
+    <div class="lcd-screen" id="lcdScreen">
+      <div class="lcd-top-row">
+        <div>
+          <div class="lcd-price-label">Spot Price / troy oz</div>
+          <div class="lcd-spot-row">
+            <span class="spot-currency">$</span>
+            <span id="spotDisplay" class="lcd-spot-input" style="display:inline-block;cursor:default;">
+              <span id="spotText" style="color:var(--lcd-green-dim);opacity:0.5">–––.––</span><span class="spot-cursor"></span>
+            </span>
+          </div>
+          <div class="lcd-timestamp" id="priceTimestamp"></div>
+        </div>
+        <div style="text-align:right">
+          <div class="lcd-live-badge loading" id="liveBadge">◌ FETCH</div>
+          <button class="lcd-refresh-btn" id="refreshBtn" onclick="fetchGoldPrice()">↻ REFRESH</button>
+        </div>
+      </div>
+
+      <div class="lcd-divider"></div>
+
+      <div class="lcd-result-area">
+        <div class="lcd-result-label" id="resultLabel">READY</div>
+        <div class="lcd-result-price" id="resultPrice"></div>
+        <div class="lcd-placeholder" id="resultPlaceholder">SELECT MODE → ENTER WEIGHT → CALC</div>
+        <div class="lcd-breakdown" id="lcdBreakdown"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keys -->
+  <div class="keypad">
+
+    <!-- Mode -->
+    <div>
+      <div class="key-section-label">Mode</div>
+      <div class="key-row" id="modeGroup">
+        <button class="key key-mode active" data-value="buying">
+          <div class="key-inner">
+            <span class="key-label">BUY</span>
+            <span class="key-sublabel">GOLD × 95%</span>
+          </div>
+        </button>
+        <button class="key key-mode" data-value="selling">
+          <div class="key-inner">
+            <span class="key-label">SELL</span>
+            <span class="key-sublabel">+ FEES × 3</span>
+          </div>
+        </button>
+        <button class="key key-mode" data-value="cost">
+          <div class="key-inner">
+            <span class="key-label">COST</span>
+            <span class="key-sublabel">+ LABOR</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Karat -->
+    <div>
+      <div class="key-section-label">Karat</div>
+      <div class="key-row" id="karatGroup">
+        <button class="key active" data-value="10">
+          <div class="key-inner">
+            <span class="key-label">10K</span>
+            <span class="key-sublabel">41.7% PURE</span>
+          </div>
+        </button>
+        <button class="key" data-value="14">
+          <div class="key-inner">
+            <span class="key-label">14K</span>
+            <span class="key-sublabel">58.3% PURE</span>
+          </div>
+        </button>
+        <button class="key" data-value="18">
+          <div class="key-inner">
+            <span class="key-label">18K</span>
+            <span class="key-sublabel">75.0% PURE</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Input Target -->
+    <div>
+      <div class="key-section-label">Numpad Input</div>
+      <div class="key-row" id="inputTargetGroup">
+        <button class="key key-spot" data-target="spot" onclick="setNumpadTarget('spot')">
+          <div class="key-inner">
+            <span class="key-label">SPOT</span>
+            <span class="key-sublabel">EDIT PRICE</span>
+          </div>
+        </button>
+        <button class="key key-wght active" data-target="weight" onclick="setNumpadTarget('weight')">
+          <div class="key-inner">
+            <span class="key-label">WGHT</span>
+            <span class="key-sublabel">ENTER WEIGHT</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- end .keypad -->
+
+  <!-- Weight display + Unit toggle -->
+  <div class="numpad-section" style="margin-top:10px">
+    <div class="key-section-label" style="padding:0">Weight</div>
+    <div class="numpad-display-row">
+      <div class="weight-display-box">
+        <div class="weight-display-label">Enter Weight</div>
+        <div class="weight-display-value" id="weightDisplay">
+          <span id="weightText" style="color:var(--lcd-green-dim);opacity:0.5">0</span><span class="weight-cursor"></span>
+        </div>
+      </div>
+      <div class="unit-col" id="unitGroup" style="flex:0 0 72px">
+        <button class="key active" data-value="dwt" style="flex:1">
+          <div class="key-inner" style="min-height:0;padding:10px 4px"><span class="key-label">DWT</span></div>
+        </button>
+        <button class="key" data-value="gram" style="flex:1">
+          <div class="key-inner" style="min-height:0;padding:10px 4px"><span class="key-label">GRM</span></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Numpad grid: 7 8 9 / 4 5 6 / 1 2 3 / CLR 0 ⌫ -->
+    <div class="numpad-grid">
+      <button class="nkey" onclick="numpadPress('7')"><div class="nkey-inner"><span class="nkey-digit">7</span></div></button>
+      <button class="nkey" onclick="numpadPress('8')"><div class="nkey-inner"><span class="nkey-digit">8</span></div></button>
+      <button class="nkey" onclick="numpadPress('9')"><div class="nkey-inner"><span class="nkey-digit">9</span></div></button>
+      <button class="nkey" onclick="numpadPress('4')"><div class="nkey-inner"><span class="nkey-digit">4</span></div></button>
+      <button class="nkey" onclick="numpadPress('5')"><div class="nkey-inner"><span class="nkey-digit">5</span></div></button>
+      <button class="nkey" onclick="numpadPress('6')"><div class="nkey-inner"><span class="nkey-digit">6</span></div></button>
+      <button class="nkey" onclick="numpadPress('1')"><div class="nkey-inner"><span class="nkey-digit">1</span></div></button>
+      <button class="nkey" onclick="numpadPress('2')"><div class="nkey-inner"><span class="nkey-digit">2</span></div></button>
+      <button class="nkey" onclick="numpadPress('3')"><div class="nkey-inner"><span class="nkey-digit">3</span></div></button>
+      <button class="nkey nkey-clear" onclick="numpadPress('C')"><div class="nkey-inner"><span class="nkey-digit">CLR</span></div></button>
+      <button class="nkey" onclick="numpadPress('0')"><div class="nkey-inner"><span class="nkey-digit">0</span></div></button>
+      <button class="nkey nkey-back" onclick="numpadPress('.')"><div class="nkey-inner"><span class="nkey-digit">.</span><span class="nkey-sub">decimal</span></div></button>
+      <!-- Row 5: spans -->
+      <button class="nkey nkey-back" onclick="numpadPress('DEL')" style="grid-column:1/3"><div class="nkey-inner"><span class="nkey-digit">⌫</span><span class="nkey-sub">backspace</span></div></button>
+      <button class="nkey nkey-clear" onclick="numpadPress('AC')" style="grid-column:3/4"><div class="nkey-inner"><span class="nkey-digit">AC</span><span class="nkey-sub">all clear</span></div></button>
+    </div>
+  </div>
+
+  <div class="error-strip" id="errorStrip">⚠ ENTER VALID SPOT PRICE AND WEIGHT</div>
+
+  <div class="calc-btn-wrap" style="margin-top:12px">
+    <button class="calc-main-btn" onclick="calculate()">
+      <div class="calc-main-inner">CALCULATE</div>
+    </button>
+  </div>
+
+  <div class="feet">
+    <div class="foot"></div><div class="foot"></div>
+    <div class="foot"></div><div class="foot"></div>
+  </div>
+</div>
+
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙ Settings</div>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Multipliers -->
+      <div class="settings-section">
+        <div class="settings-section-title">Multipliers</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-row-label">Buy Multiplier</div>
+            <div class="setting-row-sublabel">Gold value × this → buying price</div>
+          </div>
+          <div class="setting-input-group">
+            <span class="setting-currency" style="color:var(--sub-label)">×</span>
+            <input type="number" class="setting-input" id="buyMultInput" min="0" step="0.01" style="width:70px">
+          </div>
+        </div>
+        <div class="setting-row" style="margin-top:10px">
+          <div>
+            <div class="setting-row-label">Sell Multiplier</div>
+            <div class="setting-row-sublabel">Subtotal × this → selling price</div>
+          </div>
+          <div class="setting-input-group">
+            <span class="setting-currency" style="color:var(--sub-label)">×</span>
+            <input type="number" class="setting-input" id="sellMultInput" min="0" step="0.01" style="width:70px">
+          </div>
+        </div>
+      </div>
+
+      <!-- Rates (per DWT) -->
+      <div class="settings-section">
+        <div class="settings-section-title">Rates <span style="font-weight:400;color:var(--sub-label);font-size:0.7rem;letter-spacing:0.05em">— charged per DWT</span></div>
+        <div id="rateList"></div>
+
+        <button class="add-fee-trigger" id="addRateToggleBtn">+ Add Rate</button>
+
+        <div id="addRateForm" style="display:none;background:rgba(0,0,0,0.2);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;padding:12px;margin-top:8px;">
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+              <div class="form-label">Rate Name</div>
+              <input type="text" class="form-input" id="newRateName" placeholder="e.g. Casting">
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+              <div class="form-label">Amount ($/dwt)</div>
+              <input type="number" class="form-input" id="newRateAmount" placeholder="10.00" min="0" step="0.01">
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+            <div class="form-label">Applies To</div>
+            <select class="form-select" id="newRateApplies">
+              <option value="both">Both (Sell &amp; Cost)</option>
+              <option value="selling">Selling only</option>
+              <option value="cost">Cost only</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="modal-btn modal-btn-primary" id="saveRateBtn">Save Rate</button>
+            <button class="modal-btn modal-btn-secondary" id="cancelRateBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fees (flat) -->
+      <div class="settings-section">
+        <div class="settings-section-title">Fees <span style="font-weight:400;color:var(--sub-label);font-size:0.7rem;letter-spacing:0.05em">— flat dollar amount</span></div>
+        <div id="feeList"></div>
+
+        <button class="add-fee-trigger" id="addFeeToggleBtn">+ Add Fee</button>
+
+        <div id="addFeeForm" style="display:none;background:rgba(0,0,0,0.2);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;padding:12px;margin-top:8px;">
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+              <div class="form-label">Fee Name</div>
+              <input type="text" class="form-input" id="newFeeName" placeholder="e.g. Printing Fee">
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+              <div class="form-label">Amount (USD)</div>
+              <input type="number" class="form-input" id="newFeeAmount" placeholder="35.00" min="0" step="0.01">
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+            <div class="form-label">Applies To</div>
+            <select class="form-select" id="newFeeApplies">
+              <option value="selling">Selling only</option>
+              <option value="cost">Cost only</option>
+              <option value="both">Both (Sell &amp; Cost)</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="modal-btn modal-btn-primary" id="saveFeeBtn">Save Fee</button>
+            <button class="modal-btn modal-btn-secondary" id="cancelFeeBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ── Constants ──
+const TROY_OZ_TO_GRAMS = 31.1035;
+const DWT_TO_GRAMS     = 1.55517;
+const GRAMS_TO_DWT     = 1 / DWT_TO_GRAMS;
+const KITCO_KEY        = '9bnteWVi2kT13528d100c608fn0TlbC6';
+const PROXIES = [
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+];
+
+// ── State ──
+const state = {
+  mode:         'buying',
+  karat:        '10',
+  unit:         'dwt',
+  numpadTarget: 'weight',
+  weightStr:    '',
+  spotStr:      '',
+  rates: [
+    { id: 1, name: 'Labor', amount: 10, appliesTo: 'both' },
+  ],
+  fees: [
+    { id: 1, name: 'Printing Fee', amount: 35, appliesTo: 'selling' },
+    { id: 2, name: 'Design Fee',   amount: 60, appliesTo: 'selling' },
+  ],
+  nextRateId:      2,
+  nextFeeId:       3,
+  buyMultiplier:   0.95,
+  sellMultiplier:  3,
+};
+
+// ── Numpad Target ──
+function setNumpadTarget(target) {
+  state.numpadTarget = target;
+  // Update buttons
+  document.getElementById('inputTargetGroup').querySelectorAll('.key').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-target="${target}"]`).classList.add('active');
+  // Toggle spot-editing class on LCD screen
+  const screen = document.getElementById('lcdScreen');
+  if (target === 'spot') {
+    screen.classList.add('spot-editing');
+  } else {
+    screen.classList.remove('spot-editing');
+  }
+}
+
+// ── Numpad ──
+function numpadPress(key) {
+  const isSpot = state.numpadTarget === 'spot';
+  let s = isSpot ? state.spotStr : state.weightStr;
+
+  if (key === 'AC') {
+    // AC clears both
+    state.spotStr   = '';
+    state.weightStr = '';
+    updateSpotDisplay();
+    updateWeightDisplay();
+    clearResult();
+    return;
+  }
+  if (key === 'C') {
+    s = '';
+  } else if (key === 'DEL') {
+    s = s.slice(0, -1);
+  } else if (key === '.') {
+    if (!s.includes('.')) s += '.';
+  } else if (key >= '0' && key <= '9') {
+    const maxLen = isSpot ? 10 : 8;
+    if (s.length >= maxLen) return;
+    if (s === '0') s = key === '0' ? '0' : key;
+    else s += key;
+  }
+
+  if (isSpot) {
+    state.spotStr = s;
+    updateSpotDisplay();
+  } else {
+    state.weightStr = s;
+    updateWeightDisplay();
+  }
+  clearResult();
+}
+
+function updateSpotDisplay() {
+  const el = document.getElementById('spotText');
+  const s  = state.spotStr;
+  if (!s) {
+    el.textContent  = '–––.––';
+    el.style.color   = 'var(--lcd-green-dim)';
+    el.style.opacity = '0.5';
+  } else {
+    el.textContent  = s;
+    el.style.color   = 'var(--lcd-green)';
+    el.style.opacity = '1';
+  }
+}
+
+function updateWeightDisplay() {
+  const el = document.getElementById('weightText');
+  const s  = state.weightStr;
+  if (!s) {
+    el.textContent  = '0';
+    el.style.color   = 'var(--lcd-green-dim)';
+    el.style.opacity = '0.5';
+  } else {
+    el.textContent  = s;
+    el.style.color   = 'var(--lcd-green)';
+    el.style.opacity = '1';
+  }
+}
+
+// ── Toggle Groups ──
+function setupGroup(groupId, stateKey) {
+  document.getElementById(groupId).querySelectorAll('.key').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(groupId).querySelectorAll('.key').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state[stateKey] = btn.dataset.value;
+      clearResult();
+    });
+  });
+}
+setupGroup('modeGroup', 'mode');
+setupGroup('karatGroup', 'karat');
+setupGroup('unitGroup', 'unit');
+
+// Physical keyboard support
+document.addEventListener('keydown', e => {
+  if (document.getElementById('settingsModal').classList.contains('open')) return;
+  if (['0','1','2','3','4','5','6','7','8','9'].includes(e.key)) { numpadPress(e.key); return; }
+  if (e.key === '.' || e.key === ',') { numpadPress('.'); return; }
+  if (e.key === 'Backspace') { numpadPress('DEL'); return; }
+  if (e.key === 'Delete')    { numpadPress('AC'); return; }
+  if (e.key === 'Enter')     { calculate(); return; }
+  // Tab switches numpad target
+  if (e.key === 'Tab') { e.preventDefault(); setNumpadTarget(state.numpadTarget === 'weight' ? 'spot' : 'weight'); return; }
+});
+
+// ── Format ──
+function fmt(n) {
+  return '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// ── Clear Result ──
+function clearResult() {
+  document.getElementById('resultPrice').classList.remove('visible');
+  document.getElementById('resultPlaceholder').style.display = 'block';
+  document.getElementById('lcdBreakdown').classList.remove('visible');
+  document.getElementById('resultLabel').textContent = 'READY';
+  document.getElementById('errorStrip').classList.remove('visible');
+}
+
+// ── Calculate ──
+function calculate() {
+  const goldFix   = parseFloat(state.spotStr);
+  const weightRaw = parseFloat(state.weightStr);
+
+  if (!goldFix || goldFix <= 0 || !weightRaw || weightRaw <= 0) {
+    document.getElementById('errorStrip').classList.add('visible');
+    return;
+  }
+  document.getElementById('errorStrip').classList.remove('visible');
+
+  if (state.numpadTarget === 'spot') setNumpadTarget('weight');
+
+  let weightGrams, weightDWT;
+  if (state.unit === 'gram') {
+    weightGrams = weightRaw;
+    weightDWT   = weightRaw * GRAMS_TO_DWT;
+  } else {
+    weightDWT   = weightRaw;
+    weightGrams = weightRaw * DWT_TO_GRAMS;
+  }
+
+  const purity       = parseInt(state.karat) / 24;
+  const pricePerGram = goldFix / TROY_OZ_TO_GRAMS;
+  const goldValue    = weightGrams * purity * pricePerGram;
+
+  const modeLabels = { buying: 'Buying Price', selling: 'Selling Price', cost: 'Cost Price' };
+  let finalPrice;
+  const rows = []; // { label, value, style }
+
+  function calcRates(mode) {
+    const appRates = state.rates.filter(r => r.appliesTo === mode || r.appliesTo === 'both');
+    let total = 0;
+    const rateRows = appRates.map(r => {
+      const cost = r.amount * weightDWT;
+      total += cost;
+      return { label: `${r.name}  (${weightDWT.toFixed(2)}dwt × $${r.amount})`, value: fmt(cost) };
+    });
+    return { total, rateRows };
+  }
+
+  const pricePerDWT = (pricePerGram * purity) * DWT_TO_GRAMS;
+
+  rows.push({ label: `Spot  $${goldFix} / toz`, value: `${fmt(pricePerDWT)} / dwt` });
+  rows.push({ label: `${state.karat}K  ${weightRaw}${state.unit === 'dwt' ? 'dwt' : 'g'}`, value: fmt(goldValue), style: 'divider' });
+
+  if (state.mode === 'buying') {
+    finalPrice = goldValue * state.buyMultiplier;
+    rows.push({ label: `× ${state.buyMultiplier} buy rate`, value: '' });
+
+  } else if (state.mode === 'selling') {
+    const { total: ratesTotal, rateRows } = calcRates('selling');
+    const appFees = state.fees.filter(f => f.appliesTo === 'selling' || f.appliesTo === 'both');
+    let feesTotal = 0;
+    appFees.forEach(f => { feesTotal += f.amount; rows.push({ label: f.name, value: fmt(f.amount) }); });
+    rateRows.forEach(r => rows.push(r));
+    const subtotal = goldValue + ratesTotal + feesTotal;
+    finalPrice = subtotal * state.sellMultiplier;
+    rows.push({ label: `Subtotal`, value: fmt(subtotal), style: 'divider' });
+    rows.push({ label: `× ${state.sellMultiplier} multiplier`, value: '' });
+
+  } else {
+    const { total: ratesTotal, rateRows } = calcRates('cost');
+    const appFees = state.fees.filter(f => f.appliesTo === 'cost' || f.appliesTo === 'both');
+    let feesTotal = 0;
+    appFees.forEach(f => { feesTotal += f.amount; rows.push({ label: f.name, value: fmt(f.amount) }); });
+    rateRows.forEach(r => rows.push(r));
+    finalPrice = goldValue + ratesTotal + feesTotal;
+  }
+
+  showTape(modeLabels[state.mode], rows, finalPrice);
+}
+
+function showTape(modeLabel, rows, total) {
+  const content = document.getElementById('tapeContent');
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+  let html = `
+    <div class="tape-header">
+      <div class="tape-brand">GoldFix</div>
+      <div class="tape-timestamp">${dateStr} &nbsp;·&nbsp; ${timeStr}</div>
+      <div class="tape-mode-badge">${modeLabel}</div>
+    </div>
+  `;
+
+  let delay = 0.6;
+  rows.forEach(r => {
+    const cls = r.style === 'divider' ? 'tape-row tape-divider' : 'tape-row';
+    const valHtml = r.value ? `<span class="tape-row-val">${r.value}</span>` : '';
+    html += `<div class="${cls}" style="animation-delay:${delay.toFixed(2)}s">
+      <span class="tape-row-label">${r.label}</span>${valHtml}
+    </div>`;
+    delay += 0.07;
+  });
+
+  delay += 0.05;
+  html += `
+    <div class="tape-total-row" style="animation-delay:${delay.toFixed(2)}s">
+      <span class="tape-total-label">Total</span>
+      <span class="tape-total-value">${fmt(total)}</span>
+    </div>
+  `;
+
+  delay += 0.15;
+  html += `<div class="tape-footer" style="animation-delay:${delay.toFixed(2)}s">
+    GF-1 Pro &nbsp;·&nbsp; thank you
+  </div>`;
+
+  content.innerHTML = html;
+
+  // Reset body animation
+  const body = document.getElementById('tapeBody');
+  body.style.animation = 'none';
+  void body.offsetWidth;
+  body.style.animation = '';
+
+  document.getElementById('tapeOverlay').classList.add('printing');
+
+  // Subtle print sound
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < 8; i++) {
+      const buf = ctx.createBuffer(1, ctx.sampleRate * 0.035, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * (1 - j / data.length) * 0.12;
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const gain = ctx.createGain(); gain.gain.value = 0.5;
+      src.connect(gain); gain.connect(ctx.destination);
+      src.start(ctx.currentTime + i * 0.055);
+    }
+  } catch(_) {}
+}
+
+function closeTape() {
+  const overlay = document.getElementById('tapeOverlay');
+  const body    = document.getElementById('tapeBody');
+  const isMobile = window.innerWidth <= 480;
+  if (isMobile) {
+    body.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    body.style.opacity = '0';
+    body.style.transform = 'translateY(-20px)';
+    setTimeout(() => {
+      overlay.classList.remove('printing');
+      body.style.transition = '';
+      body.style.opacity = '';
+      body.style.transform = '';
+    }, 320);
+  } else {
+    body.style.animation = 'tapeRetract 0.4s cubic-bezier(0.55, 0, 0.8, 0) forwards';
+    setTimeout(() => {
+      overlay.classList.remove('printing');
+      body.style.animation = '';
+    }, 420);
+  }
+}
+
+// Wire tape close button
+document.getElementById('tapeClose').addEventListener('click', closeTape);
+
+// ── Live Spot Price ──
+async function fetchGoldPrice() {
+  const badge = document.getElementById('liveBadge');
+  const stamp = document.getElementById('priceTimestamp');
+  const rBtn  = document.getElementById('refreshBtn');
+
+  // Switch back to weight target when live-fetching
+  setNumpadTarget('weight');
+
+  badge.textContent = '◌ FETCH';
+  badge.className   = 'lcd-live-badge loading';
+  stamp.textContent = 'Fetching live price…';
+  rBtn.textContent  = '↺ LOADING';
+
+  const ts  = Date.now();
+  const url = `https://kds2.kitco.com/getPM?apikey=${KITCO_KEY}&type=xml&df=3&tf=3&symbol=AU&currency=USD&unit=OUNCE&tz=EST&kgx=no&dummy=${ts}`;
+
+  let price = null;
+  for (const mkProxy of PROXIES) {
+    try {
+      const res  = await fetch(mkProxy(url), { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) continue;
+      const text = await res.text();
+      const m    = text.match(/<Mid>([\d.]+)<\/Mid>/i);
+      if (m) { price = parseFloat(m[1]); break; }
+    } catch (_) {}
+  }
+
+  rBtn.textContent = '↻ REFRESH';
+
+  if (price && price > 0) {
+    state.spotStr = price.toFixed(2);
+    updateSpotDisplay();
+    badge.textContent = '◉ LIVE';
+    badge.className   = 'lcd-live-badge live';
+    const d = new Date();
+    stamp.textContent = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + '  ' +
+                        d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+    clearResult();
+  } else {
+    badge.textContent = '✕ OFFLINE';
+    badge.className   = 'lcd-live-badge error';
+    stamp.textContent = 'Press SPOT → enter price manually';
+  }
+}
+
+// ── Settings ──
+function openSettings() {
+  document.getElementById('buyMultInput').value  = state.buyMultiplier;
+  document.getElementById('sellMultInput').value = state.sellMultiplier;
+  renderRateList();
+  renderFeeList();
+  document.getElementById('settingsModal').classList.add('open');
+}
+
+function closeSettings() {
+  const buyM  = parseFloat(document.getElementById('buyMultInput').value);
+  const sellM = parseFloat(document.getElementById('sellMultInput').value);
+  if (!isNaN(buyM)  && buyM  >= 0) state.buyMultiplier  = buyM;
+  if (!isNaN(sellM) && sellM >= 0) state.sellMultiplier = sellM;
+  hideRateForm();
+  hideFeeForm();
+  document.getElementById('settingsModal').classList.remove('open');
+  clearResult();
+}
+
+// ─ Rate form helpers ─
+let editingRateId = null;
+
+function showRateForm(r) {
+  editingRateId = r ? r.id : null;
+  document.getElementById('newRateName').value    = r ? r.name   : '';
+  document.getElementById('newRateAmount').value  = r ? r.amount : '';
+  document.getElementById('newRateApplies').value = r ? r.appliesTo : 'both';
+  document.getElementById('addRateForm').style.display = 'block';
+  document.getElementById('addRateToggleBtn').textContent = '− Cancel';
+  document.getElementById('newRateName').focus();
+}
+
+function hideRateForm() {
+  editingRateId = null;
+  document.getElementById('addRateForm').style.display = 'none';
+  document.getElementById('addRateToggleBtn').textContent = '+ Add Rate';
+}
+
+function saveRate() {
+  const name      = document.getElementById('newRateName').value.trim();
+  const amount    = parseFloat(document.getElementById('newRateAmount').value);
+  const appliesTo = document.getElementById('newRateApplies').value;
+  if (!name || isNaN(amount) || amount < 0) {
+    document.getElementById('newRateName').style.borderColor = name ? '' : 'rgba(255,80,80,0.6)';
+    document.getElementById('newRateAmount').style.borderColor = (!isNaN(amount) && amount >= 0) ? '' : 'rgba(255,80,80,0.6)';
+    return;
+  }
+  document.getElementById('newRateName').style.borderColor = '';
+  document.getElementById('newRateAmount').style.borderColor = '';
+
+  if (editingRateId !== null) {
+    const r = state.rates.find(r => r.id === editingRateId);
+    if (r) Object.assign(r, { name, amount, appliesTo });
+  } else {
+    state.rates.push({ id: state.nextRateId++, name, amount, appliesTo });
+  }
+  hideRateForm();
+  renderRateList();
+}
+
+function renderRateList() {
+  const list = document.getElementById('rateList');
+  if (!state.rates.length) {
+    list.innerHTML = '<div style="font-size:0.78rem;color:var(--sub-label);padding:4px 2px 8px;">No rates configured.</div>';
+    return;
+  }
+  list.innerHTML = state.rates.map(r => `
+    <div class="fee-item" style="margin-bottom:7px;">
+      <div class="fee-item-name">${r.name}</div>
+      <div class="fee-item-applies">${r.appliesTo}</div>
+      <div class="fee-item-amount">$${r.amount.toFixed(2)}<span style="font-size:0.65rem;color:var(--sub-label)">/dwt</span></div>
+      <div class="fee-item-actions">
+        <button class="fee-action-btn" data-edit-rate="${r.id}" title="Edit">✎</button>
+        <button class="fee-action-btn del" data-del-rate="${r.id}" title="Remove">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─ Fee form helpers ─
+let editingFeeId = null;
+
+function showFeeForm(f) {
+  editingFeeId = f ? f.id : null;
+  document.getElementById('newFeeName').value    = f ? f.name   : '';
+  document.getElementById('newFeeAmount').value  = f ? f.amount : '';
+  document.getElementById('newFeeApplies').value = f ? f.appliesTo : 'selling';
+  document.getElementById('addFeeForm').style.display = 'block';
+  document.getElementById('addFeeToggleBtn').textContent = '− Cancel';
+  document.getElementById('newFeeName').focus();
+}
+
+function hideFeeForm() {
+  editingFeeId = null;
+  document.getElementById('addFeeForm').style.display = 'none';
+  document.getElementById('addFeeToggleBtn').textContent = '+ Add Fee';
+}
+
+function saveFee() {
+  const name      = document.getElementById('newFeeName').value.trim();
+  const amount    = parseFloat(document.getElementById('newFeeAmount').value);
+  const appliesTo = document.getElementById('newFeeApplies').value;
+  if (!name || isNaN(amount) || amount < 0) {
+    document.getElementById('newFeeName').style.borderColor = name ? '' : 'rgba(255,80,80,0.6)';
+    document.getElementById('newFeeAmount').style.borderColor = (!isNaN(amount) && amount >= 0) ? '' : 'rgba(255,80,80,0.6)';
+    return;
+  }
+  document.getElementById('newFeeName').style.borderColor = '';
+  document.getElementById('newFeeAmount').style.borderColor = '';
+
+  if (editingFeeId !== null) {
+    const f = state.fees.find(f => f.id === editingFeeId);
+    if (f) Object.assign(f, { name, amount, appliesTo });
+  } else {
+    state.fees.push({ id: state.nextFeeId++, name, amount, appliesTo });
+  }
+  hideFeeForm();
+  renderFeeList();
+}
+
+function renderFeeList() {
+  const list = document.getElementById('feeList');
+  if (!state.fees.length) {
+    list.innerHTML = '<div style="font-size:0.78rem;color:var(--sub-label);padding:4px 2px 8px;">No fees configured.</div>';
+    return;
+  }
+  list.innerHTML = state.fees.map(f => `
+    <div class="fee-item" style="margin-bottom:7px;">
+      <div class="fee-item-name">${f.name}</div>
+      <div class="fee-item-applies">${f.appliesTo}</div>
+      <div class="fee-item-amount">$${f.amount.toFixed(2)}</div>
+      <div class="fee-item-actions">
+        <button class="fee-action-btn" data-edit-fee="${f.id}" title="Edit">✎</button>
+        <button class="fee-action-btn del" data-del-fee="${f.id}" title="Remove">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─ Wire up settings buttons via event delegation ─
+document.addEventListener('DOMContentLoaded', () => {
+  // Rate toggle button
+  document.getElementById('addRateToggleBtn').addEventListener('click', () => {
+    const form = document.getElementById('addRateForm');
+    if (form.style.display === 'block') hideRateForm();
+    else showRateForm(null);
+  });
+
+  // Save / Cancel rate
+  document.getElementById('saveRateBtn').addEventListener('click', saveRate);
+  document.getElementById('cancelRateBtn').addEventListener('click', hideRateForm);
+
+  // Edit / Delete rate (event delegation on modal body)
+  document.getElementById('rateList').addEventListener('click', e => {
+    const editBtn = e.target.closest('[data-edit-rate]');
+    const delBtn  = e.target.closest('[data-del-rate]');
+    if (editBtn) {
+      const r = state.rates.find(r => r.id === parseInt(editBtn.dataset.editRate));
+      if (r) showRateForm(r);
+    }
+    if (delBtn) {
+      state.rates = state.rates.filter(r => r.id !== parseInt(delBtn.dataset.delRate));
+      renderRateList();
+    }
+  });
+
+  // Fee toggle button
+  document.getElementById('addFeeToggleBtn').addEventListener('click', () => {
+    const form = document.getElementById('addFeeForm');
+    if (form.style.display === 'block') hideFeeForm();
+    else showFeeForm(null);
+  });
+
+  // Save / Cancel fee
+  document.getElementById('saveFeeBtn').addEventListener('click', saveFee);
+  document.getElementById('cancelFeeBtn').addEventListener('click', hideFeeForm);
+
+  // Edit / Delete fee
+  document.getElementById('feeList').addEventListener('click', e => {
+    const editBtn = e.target.closest('[data-edit-fee]');
+    const delBtn  = e.target.closest('[data-del-fee]');
+    if (editBtn) {
+      const f = state.fees.find(f => f.id === parseInt(editBtn.dataset.editFee));
+      if (f) showFeeForm(f);
+    }
+    if (delBtn) {
+      state.fees = state.fees.filter(f => f.id !== parseInt(delBtn.dataset.delFee));
+      renderFeeList();
+    }
+  });
+
+  // Close modal on backdrop click
+  document.getElementById('settingsModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('settingsModal')) closeSettings();
+  });
+});
+
+// ── Boot ──
+fetchGoldPrice();
+</script>
+</body>
+</html>
