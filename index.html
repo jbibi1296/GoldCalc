@@ -37,10 +37,11 @@
 }
 
 body {
-  background: #141416;
+  background: #0e0e10;
   background-image:
-    radial-gradient(ellipse 70% 50% at 50% 20%, rgba(180,130,10,0.06) 0%, transparent 65%),
-    repeating-linear-gradient(45deg, rgba(255,255,255,0.008) 0px, rgba(255,255,255,0.008) 1px, transparent 1px, transparent 8px);
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(180,140,10,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(60,100,180,0.04) 0%, transparent 60%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.006) 0px, rgba(255,255,255,0.006) 1px, transparent 1px, transparent 10px);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -51,28 +52,32 @@ body {
 
 /* ── Calculator Shell ── */
 .calc-shell {
-  width: 420px;
+  width: 440px;
   background: linear-gradient(160deg, var(--body-top) 0%, var(--body-mid) 40%, var(--body-bot) 100%);
-  border-radius: 28px 28px 40px 40px;
-  padding: 0 0 28px;
+  border-radius: 24px 24px 36px 36px;
+  padding: 0 0 32px;
   position: relative;
   box-shadow:
-    0 2px 0 #4f4f54 inset,
-    0 -3px 0 #111 inset,
-    3px 0 0 #333 inset,
-    -3px 0 0 #333 inset,
-    0 30px 80px rgba(0,0,0,0.85),
-    0 8px 20px rgba(0,0,0,0.6),
-    0 1px 0 rgba(255,255,255,0.06);
+    0 2px 0 #505055 inset,
+    0 -3px 0 #0d0d0f inset,
+    3px 0 0 #303033 inset,
+    -3px 0 0 #303033 inset,
+    0 40px 100px rgba(0,0,0,0.95),
+    0 12px 30px rgba(0,0,0,0.7),
+    0 2px 4px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.07);
   user-select: none;
 }
 
+/* Subtle material texture */
 .calc-shell::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(to right, rgba(255,255,255,0.04) 0%, transparent 15%, transparent 85%, rgba(255,255,255,0.02) 100%);
+  background:
+    linear-gradient(to right, rgba(255,255,255,0.045) 0%, transparent 12%, transparent 88%, rgba(255,255,255,0.025) 100%),
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 0%, transparent 8%);
   pointer-events: none;
 }
 
@@ -134,59 +139,92 @@ body {
 
 /* ── LCD Display ── */
 .lcd-bezel {
-  margin: 0 18px 18px;
-  background: var(--bezel);
-  border-radius: 10px;
-  padding: 8px;
-  box-shadow:
-    inset 0 3px 8px rgba(0,0,0,0.8),
-    inset 0 1px 2px rgba(0,0,0,0.5),
-    0 1px 0 rgba(255,255,255,0.05);
-}
-.lcd-screen {
-  background: linear-gradient(160deg, var(--lcd-bg) 0%, var(--lcd-bg2) 100%);
-  border-radius: 6px;
-  padding: 12px 14px 10px;
-  min-height: 170px;
-  position: relative;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.5), inset 0 1px 3px rgba(0,0,0,0.4);
-  overflow: hidden;
-}
-.lcd-screen::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
-  pointer-events: none;
-  border-radius: inherit;
-}
-.lcd-screen::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 45%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
-  pointer-events: none;
-  border-radius: 6px 6px 0 0;
+  margin: 0 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.lcd-top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 6px;
+/* Shared scanline mixin via pseudo-element on both screens */
+.lcd-screen-shared {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 3px 10px rgba(0,0,0,0.8),
+    inset 0 1px 2px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.04);
 }
-.lcd-price-label {
+.lcd-screen-shared::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px);
+  pointer-events: none; border-radius: inherit; z-index: 1;
+}
+.lcd-screen-shared::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  pointer-events: none; border-radius: 8px 8px 0 0; z-index: 1;
+}
+
+/* ── SPOT SUBSCREEN (small info bar) ── */
+.spot-subscreen {
+  background: linear-gradient(160deg, #111a11 0%, #0a120a 100%);
+  padding: 6px 12px 7px;
+  border: 1px solid rgba(0,0,0,0.5);
+}
+.spot-subscreen-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.spot-sub-left { display: flex; flex-direction: column; }
+.spot-sub-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  font-weight: 600;
+  font-size: 0.48rem;
+  letter-spacing: 0.22em;
+  font-weight: 700;
   color: var(--lcd-green-dim);
   text-transform: uppercase;
+  margin-bottom: 1px;
+}
+.spot-sub-value {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.spot-currency {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--lcd-green);
+  opacity: 0.65;
+}
+.lcd-spot-input {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.25rem;
+  color: var(--lcd-green);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 8px rgba(100,220,60,0.35);
+}
+.spot-sub-meta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.42rem;
+  color: var(--lcd-green-dim);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+.spot-sub-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
 }
 .lcd-live-badge {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.52rem;
+  font-size: 0.46rem;
   letter-spacing: 0.1em;
   color: var(--lcd-green-dim);
   transition: color 0.3s;
@@ -195,75 +233,106 @@ body {
 .lcd-live-badge.loading{ color: var(--lcd-amber); animation: blink 0.6s step-end infinite; }
 .lcd-live-badge.error  { color: #e06060; }
 @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+.lcd-refresh-btn {
+  background: none; border: 1px solid rgba(100,200,60,0.2); border-radius: 3px;
+  color: var(--lcd-green-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.46rem;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  padding: 2px 5px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.lcd-refresh-btn:hover { color: var(--lcd-green); border-color: rgba(100,200,60,0.5); background: rgba(100,200,60,0.06); }
+.lcd-timestamp {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.38rem;
+  color: var(--lcd-green-dim);
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
 
-.lcd-spot-row {
+/* Spot-editing highlight */
+.spot-subscreen.spot-editing {
+  background: linear-gradient(160deg, #141f14 0%, #0d160d 100%);
+  box-shadow: inset 0 3px 10px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(100,200,60,0.2);
+}
+
+/* ── MAIN SCREEN (weight input + result) ── */
+.lcd-screen {
+  background: linear-gradient(160deg, var(--lcd-bg) 0%, var(--lcd-bg2) 100%);
+  border: 1px solid rgba(0,0,0,0.5);
+  padding: 10px 14px 12px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow:
+    inset 0 3px 10px rgba(0,0,0,0.8),
+    inset 0 1px 2px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.04);
+}
+.lcd-screen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px);
+  pointer-events: none; border-radius: inherit; z-index: 1;
+}
+.lcd-screen::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  pointer-events: none; border-radius: 8px 8px 0 0; z-index: 1;
+}
+
+/* Main screen: weight input row */
+.lcd-weight-row {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  margin-top: 2px;
+  margin-bottom: 4px;
 }
-.spot-currency {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 1rem;
-  color: var(--lcd-green);
-  opacity: 0.7;
-  line-height: 1;
-}
-.lcd-spot-input {
-  background: transparent;
-  border: none;
-  outline: none;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 2rem;
-  color: var(--lcd-green);
-  letter-spacing: 0.06em;
-  width: 130px;
-  line-height: 1;
-  text-shadow: 0 0 10px rgba(100,220,60,0.4);
-  -moz-appearance: textfield;
-}
-.lcd-spot-input::-webkit-outer-spin-button,
-.lcd-spot-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-.lcd-timestamp {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.48rem;
+.lcd-weight-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.52rem;
+  letter-spacing: 0.2em;
+  font-weight: 700;
   color: var(--lcd-green-dim);
-  letter-spacing: 0.1em;
-  margin-top: 3px;
-  min-height: 0.7rem;
+  text-transform: uppercase;
+  margin-bottom: 3px;
 }
-
-.lcd-refresh-btn {
-  background: none;
-  border: none;
-  color: var(--lcd-green-dim);
+.weight-unit-tag {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.72rem;
-  cursor: pointer;
-  letter-spacing: 0.1em;
-  margin-top: 6px;
-  display: block;
-  transition: color 0.2s;
+  font-size: 0.85rem;
+  color: var(--lcd-green-dim);
+  letter-spacing: 0.08em;
+  margin-left: 2px;
 }
-.lcd-refresh-btn:hover { color: var(--lcd-green); }
+.lcd-weight-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 2.6rem;
+  color: var(--lcd-green);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 16px rgba(100,220,60,0.45);
+  line-height: 1;
+  flex: 1;
+}
 
 .lcd-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--lcd-green-dim), transparent);
-  margin: 8px 0;
-  opacity: 0.4;
+  margin: 6px 0;
+  opacity: 0.3;
 }
 
-.lcd-result-area { min-height: 70px; }
+.lcd-result-area { }
 .lcd-result-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  font-weight: 600;
+  font-size: 0.52rem;
+  letter-spacing: 0.22em;
+  font-weight: 700;
   color: var(--lcd-green-dim);
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 .lcd-result-price {
   font-family: 'Share Tech Mono', monospace;
@@ -279,15 +348,15 @@ body {
 
 .lcd-placeholder {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.58rem;
+  font-size: 0.5rem;
   color: var(--lcd-green-dim);
   letter-spacing: 0.1em;
-  margin-top: 6px;
-  opacity: 0.7;
+  margin-top: 4px;
+  opacity: 0.6;
 }
 
 .lcd-breakdown {
-  margin-top: 6px;
+  margin-top: 4px;
   display: none;
   flex-direction: column;
   gap: 1px;
@@ -297,11 +366,31 @@ body {
   display: flex;
   justify-content: space-between;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.5rem;
+  font-size: 0.48rem;
   color: var(--lcd-green-dim);
   letter-spacing: 0.04em;
 }
 .bd-row .bd-val { color: rgba(160,232,120,0.55); }
+
+/* Weight-editing highlight on main screen */
+.lcd-screen.weight-editing {
+  box-shadow:
+    inset 0 3px 10px rgba(0,0,0,0.8),
+    inset 0 1px 2px rgba(0,0,0,0.5),
+    inset 0 0 0 1px rgba(100,200,60,0.18);
+}
+.spot-cursor, .weight-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  background: var(--lcd-green);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: cursorBlink 1s step-end infinite;
+  opacity: 0;
+}
+.spot-editing .spot-cursor { opacity: 1; }
+.weight-editing .weight-cursor { opacity: 1; }
 
 /* ── Keypad ── */
 .keypad {
@@ -407,7 +496,7 @@ body {
 .unit-col .key .key-inner { min-height: 0; padding: 10px 4px; }
 
 /* ── Numpad ── */
-.numpad-section { padding: 0 16px; }
+#numpadSection { padding: 0 16px; }
 
 /* Input target selector */
 .key-spot .key-inner { background: linear-gradient(170deg, #3a3010, #28220a); border-bottom-color: #0e0c04; }
@@ -418,69 +507,18 @@ body {
 .key-wght.active .key-label { color: var(--lcd-green); text-shadow: 0 0 8px rgba(100,220,60,0.5); }
 .key-wght.active .key-sublabel { color: rgba(100,220,60,0.4); }
 
-/* Spot display cursor (shown when numpad targets spot) */
-.spot-cursor {
-  display: none;
-  width: 2px;
-  height: 1.6rem;
-  background: var(--lcd-green);
-  margin-left: 2px;
-  vertical-align: middle;
-  animation: cursorBlink 1s step-end infinite;
-}
-.spot-editing .spot-cursor { display: inline-block; }
+/* Hide refresh/badge when entering spot price manually */
 .spot-editing .lcd-live-badge,
-.spot-editing .lcd-refresh-btn { display: none; }
-.spot-editing #spotDisplay { text-shadow: 0 0 14px rgba(100,220,60,0.6); }
-.numpad-display-row {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-  margin-bottom: 8px;
-}
-.weight-display-box {
-  flex: 1;
-  background: linear-gradient(170deg, #1c1c1e, #141416);
-  border-radius: 8px;
-  padding: 8px 14px;
-  border-top: 1px solid rgba(0,0,0,0.6);
-  border-bottom: 2px solid #0a0a0b;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 58px;
-}
-.weight-display-label {
-  font-size: 0.5rem;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--sub-label);
-  margin-bottom: 3px;
-}
-.weight-display-value {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 1.7rem;
-  color: var(--lcd-green);
-  letter-spacing: 0.06em;
-  line-height: 1;
-  text-shadow: 0 0 10px rgba(100,220,60,0.35);
-}
-.weight-cursor {
-  display: inline-block;
-  width: 2px;
-  height: 1.4rem;
-  background: var(--lcd-green);
-  margin-left: 2px;
-  vertical-align: middle;
-  animation: cursorBlink 1s step-end infinite;
-}
+.spot-editing .lcd-refresh-btn { opacity: 0.3; pointer-events: none; }
+
 @keyframes cursorBlink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
 
 .numpad-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 7px;
+  flex: 1;
 }
 .nkey {
   border: none;
@@ -912,169 +950,228 @@ body {
   color: var(--lcd-amber);
   background: rgba(240,184,64,0.04);
 }
-/* ══ MOBILE RESPONSIVE ══ */
-@media (max-width: 480px) {
-  body {
+/* ══ MOBILE — true no-scroll one-screen layout ══ */
+@media (max-width: 600px) {
+  html, body {
+    height: 100%; height: 100dvh;
+    overflow: hidden;
     padding: 0;
-    align-items: flex-start;
-    min-height: 100dvh;
+  }
+  body {
+    align-items: stretch;
+    justify-content: stretch;
     background-attachment: fixed;
   }
-
   .calc-shell {
     width: 100%;
-    min-height: 100dvh;
+    height: 100dvh;
     border-radius: 0;
-    padding: 0 0 env(safe-area-inset-bottom, 16px);
     box-shadow: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
+  .screw, .feet, .tape-slot { display: none; }
 
-  /* Screws hidden on mobile */
-  .screw { display: none; }
-
-  /* Brand strip */
+  /* Brand strip — compact */
   .brand-strip {
-    padding: 12px 20px 8px;
-    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    flex-shrink: 0;
+    padding: 10px 16px 6px;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
   }
+  .brand-name { font-size: 1rem; }
 
-  /* LCD bezel */
+  /* LCD — compact */
   .lcd-bezel {
-    margin: 0 12px 12px;
+    flex-shrink: 0;
+    margin: 0 10px 4px;
+    gap: 4px;
   }
-  .lcd-screen {
-    padding: 10px 12px 12px;
-  }
-  .lcd-spot-input {
-    font-size: 1.7rem;
-    width: 110px;
-  }
-  .lcd-result-price {
-    font-size: 2rem;
-  }
+  .spot-subscreen { padding: 5px 10px 5px; }
+  .lcd-spot-input { font-size: 1.05rem; }
+  .spot-sub-label { font-size: 0.42rem; }
+  .spot-currency { font-size: 0.65rem; }
+  .lcd-refresh-btn { font-size: 0.42rem; }
+  .lcd-live-badge { font-size: 0.42rem; }
+  .lcd-screen { padding: 6px 12px 8px; }
+  .lcd-weight-label { font-size: 0.44rem; }
+  .lcd-weight-value { font-size: 2.0rem; }
+  .weight-unit-tag { font-size: 0.75rem; }
+  .lcd-result-price { font-size: 1.75rem; }
+  .lcd-result-area { min-height: 0; }
+  .bd-row { font-size: 0.44rem; }
+  .lcd-placeholder { font-size: 0.44rem; }
 
-  /* Keypad section */
+  /* Numpad section */
+  #numpadSection { padding: 0 10px; margin-top: 4px; }
   .keypad {
-    padding: 0 12px;
-    gap: 8px;
+    flex-shrink: 0;
+    padding: 0 10px;
+    gap: 0;
   }
+  .key-section-label { display: none; }  /* labels hidden in compact mode */
   .key-inner {
-    padding: 8px 4px 7px;
-    min-height: 44px; /* iOS touch target minimum */
+    padding: 6px 3px 5px;
+    min-height: 36px;
+    border-bottom-width: 2px;
   }
-  .key-label { font-size: 0.95rem; }
-  .key-sublabel { font-size: 0.48rem; }
+  .key-label { font-size: 0.78rem; }
+  .key-sublabel { display: none; }  /* sub-labels hidden */
+  .key-row { gap: 5px; }
+  .combined-key-strip {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    margin-bottom: 6px;
+  }
+  .combined-key-strip .key-group {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+  }
+  .combined-key-strip .key-group + .key-group {
+    border-left: 1px solid rgba(255,255,255,0.07);
+    padding-left: 6px;
+    margin-left: 2px;
+  }
 
-  /* Numpad */
-  .numpad-section {
-    padding: 0 12px;
+
+  /* Numpad — fill remaining vertical space */
+  .numpad-grid {
+    gap: 4px;
   }
   .nkey-inner {
-    min-height: 48px; /* comfortable touch target */
-    padding: 8px 4px 7px;
+    min-height: 0;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
   }
-  .nkey-digit { font-size: 1.2rem; }
+  .nkey-digit { font-size: 1.1rem; }
+  .nkey-sub { font-size: 0.38rem; }
 
-  /* Weight display */
-  .weight-display-box {
-    padding: 6px 12px;
-    min-height: 52px;
+  /* Make numpad rows fill height via flex rows */
+  .numpad-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
-  .weight-display-value { font-size: 1.5rem; }
-
-  /* Unit toggle */
-  .unit-col { flex: 0 0 64px !important; }
-
-  /* Calc button */
-  .calc-main-btn {
-    margin: 0 12px;
+  .numpad-grid-row {
+    display: flex;
+    gap: 4px;
+    flex: 1;
   }
-  .calc-main-inner {
-    padding: 14px;
-    font-size: 0.95rem;
+  .numpad-grid-row .nkey {
+    flex: 1;
+    display: flex;
   }
-
-  /* Feet hidden */
-  .feet { display: none; }
+  .numpad-grid-row .nkey .nkey-inner {
+    width: 100%;
+  }
+  .numpad-grid-row .nkey.wide { flex: 2; }
 
   /* Error strip */
-  .error-strip { margin: 6px 12px; }
+  .error-strip { flex-shrink: 0; margin: 3px 10px; font-size: 0.6rem; padding: 4px 10px; }
 
-  /* Tape overlay — full screen on mobile, scrollable */
+  /* Calculate button */
+  .calc-btn-wrap { flex-shrink: 0; margin: 4px 10px !important; padding-bottom: env(safe-area-inset-bottom, 8px); }
+  .calc-main-inner { padding: 12px; font-size: 0.9rem; letter-spacing: 0.2em; }
+
+  /* TAPE — centered, below Dynamic Island / status bar */
   .tape-overlay {
     position: fixed;
+    inset: 0;
     border-radius: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    /* safe zone below status bar / Dynamic Island */
+    padding-top: max(64px, calc(env(safe-area-inset-top, 20px) + 20px));
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 16px));
+    box-sizing: border-box;
   }
+  .tape-overlay.printing { display: flex; }
+
   .tape-body {
-    width: 92%;
-    min-height: auto;
-    position: relative;
-    top: auto;
-    left: auto;
+    /* Reset ALL desktop positioning */
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
     transform: none !important;
-    margin: 0 auto;
-    animation: tapePrintMobile 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    /* Full-width centered card */
+    width: 100%;
+    max-width: 380px;
+    min-height: auto;
+    max-height: none;
+    overflow-y: visible;
+    border-radius: 0 0 14px 14px;
+    animation: tapePrintMobile 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    flex-shrink: 0;
   }
+
   @keyframes tapePrintMobile {
-    from { opacity: 0; transform: translateY(-30px); }
+    from { opacity: 0; transform: translateY(-20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .tape-overlay.printing {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 0 0 40px;
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-  .tape-total-value { font-size: 2rem; }
-  .tape-content { padding: 24px 22px 50px; }
 
-  /* Modal full-screen on mobile */
-  .modal-overlay {
-    padding: 0;
-    align-items: flex-end;
+  .tape-close {
+    position: sticky;
+    top: 10px;
+    float: right;
+    margin: 10px 10px 0 0;
+    z-index: 10;
+    width: 34px;
+    height: 34px;
   }
+  .tape-total-value { font-size: 1.85rem; }
+  .tape-content { padding: 18px 18px 44px; }
+
+  /* Modal — bottom sheet */
+  .modal-overlay { padding: 0; align-items: flex-end; }
   .modal {
-    max-width: 100%;
-    width: 100%;
+    max-width: 100%; width: 100%;
     border-radius: 18px 18px 0 0;
     max-height: 88dvh;
     padding-bottom: env(safe-area-inset-bottom, 16px);
   }
-
-  /* Settings inputs larger touch targets */
-  .setting-input { font-size: 1rem; padding: 8px 10px; }
-  .form-input    { font-size: 1rem; padding: 8px 10px; }
-  .form-select   { font-size: 1rem; padding: 9px 28px 9px 10px; }
-  .modal-btn     { padding: 11px 18px; font-size: 0.82rem; }
+  .setting-input, .form-input, .form-select { font-size: 1rem; }
   .fee-action-btn { width: 32px; height: 32px; }
-
-  /* Tape slot hidden on mobile */
-  .tape-slot { display: none; }
 }
 
-/* Also handle landscape phones */
-@media (max-width: 768px) and (orientation: landscape) {
-  body { padding: 0; align-items: flex-start; }
+/* Landscape phone */
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  html, body { height: 100dvh; overflow: hidden; padding: 0; }
   .calc-shell {
-    width: 100%;
-    border-radius: 0;
-    box-shadow: none;
+    width: 100%; height: 100dvh;
+    border-radius: 0; box-shadow: none;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
-    padding: 0 0 8px;
+    padding: 0;
+    overflow: hidden;
   }
-  .brand-strip    { grid-column: 1 / -1; }
-  .lcd-bezel      { grid-column: 1; grid-row: 2 / 5; margin: 0 8px 8px 12px; }
-  .keypad         { grid-column: 2; grid-row: 2; padding: 0 12px 0 0; }
-  .numpad-section { grid-column: 2; grid-row: 3 / 5; padding: 0 12px 0 0; }
-  .calc-btn-wrap  { grid-column: 1 / -1; padding: 0 12px; margin-top: 4px !important; }
-  .error-strip    { grid-column: 1 / -1; margin: 0 12px; }
-  .feet { display: none; }
-  .screw { display: none; }
+  .brand-strip    { grid-column: 1 / -1; padding: 6px 16px; }
+  .lcd-bezel      { grid-column: 1; margin: 0 6px 6px 10px; }
+  .keypad         { grid-column: 2; padding: 0 10px 0 0; }
+  #numpadSection  { grid-column: 2; padding: 0 10px 0 0; }
+  .calc-btn-wrap  { grid-column: 1 / -1; margin: 0 10px 4px !important; }
+  .error-strip    { grid-column: 1 / -1; margin: 0 10px; }
+  .screw, .feet, .tape-slot { display: none; }
+  .key-section-label { display: none; }
+  .key-sublabel { display: none; }
+  .key-inner { padding: 5px 3px 4px; min-height: 30px; }
+  .nkey-inner { min-height: 28px; padding: 4px; }
+  .nkey-digit { font-size: 0.95rem; }
+  .lcd-result-price { font-size: 1.6rem; }
 }
 
 .tape-slot {
@@ -1325,24 +1422,38 @@ body {
     <button class="settings-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
-  <!-- LCD -->
+  <!-- LCD: two-screen layout -->
   <div class="lcd-bezel">
-    <div class="lcd-screen" id="lcdScreen">
-      <div class="lcd-top-row">
-        <div>
-          <div class="lcd-price-label">Spot Price / troy oz</div>
-          <div class="lcd-spot-row">
+
+    <!-- SPOT SUBSCREEN (small info bar) -->
+    <div class="spot-subscreen lcd-screen-shared" id="spotSubscreen">
+      <div class="spot-subscreen-inner">
+        <div class="spot-sub-left">
+          <div class="spot-sub-label">Gold Spot Price / troy oz</div>
+          <div class="spot-sub-value">
             <span class="spot-currency">$</span>
-            <span id="spotDisplay" class="lcd-spot-input" style="display:inline-block;cursor:default;">
+            <span id="spotDisplay" class="lcd-spot-input">
               <span id="spotText" style="color:var(--lcd-green-dim);opacity:0.5">–––.––</span><span class="spot-cursor"></span>
             </span>
           </div>
-          <div class="lcd-timestamp" id="priceTimestamp"></div>
+          <div class="spot-sub-meta" id="priceTimestamp"></div>
         </div>
-        <div style="text-align:right">
+        <div class="spot-sub-right">
           <div class="lcd-live-badge loading" id="liveBadge">◌ FETCH</div>
           <button class="lcd-refresh-btn" id="refreshBtn" onclick="fetchGoldPrice()">↻ REFRESH</button>
+          <div class="lcd-timestamp" id="spotTimestampShort"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- MAIN SCREEN (weight input + result) -->
+    <div class="lcd-screen" id="lcdScreen">
+      <div class="lcd-weight-label">Weight Input</div>
+      <div class="lcd-weight-row">
+        <div class="lcd-weight-value" id="weightDisplay">
+          <span id="weightText" style="color:var(--lcd-green-dim);opacity:0.5">0</span><span class="weight-cursor"></span>
+        </div>
+        <span class="weight-unit-tag" id="weightUnitTag">dwt</span>
       </div>
 
       <div class="lcd-divider"></div>
@@ -1354,121 +1465,99 @@ body {
         <div class="lcd-breakdown" id="lcdBreakdown"></div>
       </div>
     </div>
+
   </div>
 
   <!-- Keys -->
+  <!-- Keys — combined compact strip -->
   <div class="keypad">
+    <div class="combined-key-strip" style="display:flex;gap:0;align-items:stretch;margin-bottom:6px">
 
-    <!-- Mode -->
-    <div>
-      <div class="key-section-label">Mode</div>
-      <div class="key-row" id="modeGroup">
+      <!-- Mode group -->
+      <div style="display:flex;gap:4px;flex:3" id="modeGroup">
         <button class="key key-mode active" data-value="buying">
-          <div class="key-inner">
-            <span class="key-label">BUY</span>
-            <span class="key-sublabel">GOLD × 95%</span>
-          </div>
+          <div class="key-inner"><span class="key-label">BUY</span><span class="key-sublabel">× 95%</span></div>
         </button>
         <button class="key key-mode" data-value="selling">
-          <div class="key-inner">
-            <span class="key-label">SELL</span>
-            <span class="key-sublabel">+ FEES × 3</span>
-          </div>
+          <div class="key-inner"><span class="key-label">SELL</span><span class="key-sublabel">+ FEES</span></div>
         </button>
         <button class="key key-mode" data-value="cost">
-          <div class="key-inner">
-            <span class="key-label">COST</span>
-            <span class="key-sublabel">+ LABOR</span>
-          </div>
+          <div class="key-inner"><span class="key-label">COST</span><span class="key-sublabel">BASE</span></div>
         </button>
       </div>
-    </div>
 
-    <!-- Karat -->
-    <div>
-      <div class="key-section-label">Karat</div>
-      <div class="key-row" id="karatGroup">
+      <div style="width:1px;background:rgba(255,255,255,0.07);margin:0 5px;flex-shrink:0"></div>
+
+      <!-- Karat group -->
+      <div style="display:flex;gap:4px;flex:3" id="karatGroup">
         <button class="key active" data-value="10">
-          <div class="key-inner">
-            <span class="key-label">10K</span>
-            <span class="key-sublabel">41.7% PURE</span>
-          </div>
+          <div class="key-inner"><span class="key-label">10K</span><span class="key-sublabel">41.7%</span></div>
         </button>
         <button class="key" data-value="14">
-          <div class="key-inner">
-            <span class="key-label">14K</span>
-            <span class="key-sublabel">58.3% PURE</span>
-          </div>
+          <div class="key-inner"><span class="key-label">14K</span><span class="key-sublabel">58.3%</span></div>
         </button>
         <button class="key" data-value="18">
-          <div class="key-inner">
-            <span class="key-label">18K</span>
-            <span class="key-sublabel">75.0% PURE</span>
-          </div>
+          <div class="key-inner"><span class="key-label">18K</span><span class="key-sublabel">75.0%</span></div>
         </button>
       </div>
-    </div>
 
-    <!-- Input Target -->
-    <div>
-      <div class="key-section-label">Numpad Input</div>
-      <div class="key-row" id="inputTargetGroup">
+      <div style="width:1px;background:rgba(255,255,255,0.07);margin:0 5px;flex-shrink:0"></div>
+
+      <!-- Input target group -->
+      <div style="display:flex;gap:4px;flex:2" id="inputTargetGroup">
         <button class="key key-spot" data-target="spot" onclick="setNumpadTarget('spot')">
-          <div class="key-inner">
-            <span class="key-label">SPOT</span>
-            <span class="key-sublabel">EDIT PRICE</span>
-          </div>
+          <div class="key-inner"><span class="key-label">SPOT</span><span class="key-sublabel">PRICE</span></div>
         </button>
         <button class="key key-wght active" data-target="weight" onclick="setNumpadTarget('weight')">
-          <div class="key-inner">
-            <span class="key-label">WGHT</span>
-            <span class="key-sublabel">ENTER WEIGHT</span>
-          </div>
+          <div class="key-inner"><span class="key-label">WGHT</span><span class="key-sublabel">WEIGHT</span></div>
         </button>
       </div>
-    </div>
 
+      <div style="width:1px;background:rgba(255,255,255,0.07);margin:0 5px;flex-shrink:0"></div>
+
+      <!-- Unit group -->
+      <div style="display:flex;gap:4px;flex:2" id="unitGroup">
+        <button class="key active" data-value="dwt">
+          <div class="key-inner"><span class="key-label">DWT</span><span class="key-sublabel">PENNYWEIGHT</span></div>
+        </button>
+        <button class="key" data-value="gram">
+          <div class="key-inner"><span class="key-label">GRM</span><span class="key-sublabel">GRAMS</span></div>
+        </button>
+      </div>
+
+    </div>
   </div><!-- end .keypad -->
 
-  <!-- Weight display + Unit toggle -->
-  <div class="numpad-section" style="margin-top:10px">
-    <div class="key-section-label" style="padding:0">Weight</div>
-    <div class="numpad-display-row">
-      <div class="weight-display-box">
-        <div class="weight-display-label">Enter Weight</div>
-        <div class="weight-display-value" id="weightDisplay">
-          <span id="weightText" style="color:var(--lcd-green-dim);opacity:0.5">0</span><span class="weight-cursor"></span>
-        </div>
+  <!-- Numpad -->
+  <div style="flex:1;display:flex;flex-direction:column;padding:0 16px;min-height:0;margin-top:6px" id="numpadSection">
+      <!-- Numpad grid: flex rows that fill available height -->
+    <div class="numpad-grid" id="numpadGrid">
+      <div class="numpad-grid-row">
+        <button class="nkey" onclick="numpadPress('7')"><div class="nkey-inner"><span class="nkey-digit">7</span></div></button>
+        <button class="nkey" onclick="numpadPress('8')"><div class="nkey-inner"><span class="nkey-digit">8</span></div></button>
+        <button class="nkey" onclick="numpadPress('9')"><div class="nkey-inner"><span class="nkey-digit">9</span></div></button>
       </div>
-      <div class="unit-col" id="unitGroup" style="flex:0 0 72px">
-        <button class="key active" data-value="dwt" style="flex:1">
-          <div class="key-inner" style="min-height:0;padding:10px 4px"><span class="key-label">DWT</span></div>
-        </button>
-        <button class="key" data-value="gram" style="flex:1">
-          <div class="key-inner" style="min-height:0;padding:10px 4px"><span class="key-label">GRM</span></div>
-        </button>
+      <div class="numpad-grid-row">
+        <button class="nkey" onclick="numpadPress('4')"><div class="nkey-inner"><span class="nkey-digit">4</span></div></button>
+        <button class="nkey" onclick="numpadPress('5')"><div class="nkey-inner"><span class="nkey-digit">5</span></div></button>
+        <button class="nkey" onclick="numpadPress('6')"><div class="nkey-inner"><span class="nkey-digit">6</span></div></button>
+      </div>
+      <div class="numpad-grid-row">
+        <button class="nkey" onclick="numpadPress('1')"><div class="nkey-inner"><span class="nkey-digit">1</span></div></button>
+        <button class="nkey" onclick="numpadPress('2')"><div class="nkey-inner"><span class="nkey-digit">2</span></div></button>
+        <button class="nkey" onclick="numpadPress('3')"><div class="nkey-inner"><span class="nkey-digit">3</span></div></button>
+      </div>
+      <div class="numpad-grid-row">
+        <button class="nkey nkey-clear" onclick="numpadPress('C')"><div class="nkey-inner"><span class="nkey-digit">CLR</span></div></button>
+        <button class="nkey" onclick="numpadPress('0')"><div class="nkey-inner"><span class="nkey-digit">0</span></div></button>
+        <button class="nkey nkey-back" onclick="numpadPress('.')"><div class="nkey-inner"><span class="nkey-digit">.</span><span class="nkey-sub">decimal</span></div></button>
+      </div>
+      <div class="numpad-grid-row">
+        <button class="nkey nkey-back wide" onclick="numpadPress('DEL')"><div class="nkey-inner"><span class="nkey-digit">⌫</span><span class="nkey-sub">backspace</span></div></button>
+        <button class="nkey nkey-clear" onclick="numpadPress('AC')"><div class="nkey-inner"><span class="nkey-digit">AC</span><span class="nkey-sub">all clear</span></div></button>
       </div>
     </div>
-
-    <!-- Numpad grid: 7 8 9 / 4 5 6 / 1 2 3 / CLR 0 ⌫ -->
-    <div class="numpad-grid">
-      <button class="nkey" onclick="numpadPress('7')"><div class="nkey-inner"><span class="nkey-digit">7</span></div></button>
-      <button class="nkey" onclick="numpadPress('8')"><div class="nkey-inner"><span class="nkey-digit">8</span></div></button>
-      <button class="nkey" onclick="numpadPress('9')"><div class="nkey-inner"><span class="nkey-digit">9</span></div></button>
-      <button class="nkey" onclick="numpadPress('4')"><div class="nkey-inner"><span class="nkey-digit">4</span></div></button>
-      <button class="nkey" onclick="numpadPress('5')"><div class="nkey-inner"><span class="nkey-digit">5</span></div></button>
-      <button class="nkey" onclick="numpadPress('6')"><div class="nkey-inner"><span class="nkey-digit">6</span></div></button>
-      <button class="nkey" onclick="numpadPress('1')"><div class="nkey-inner"><span class="nkey-digit">1</span></div></button>
-      <button class="nkey" onclick="numpadPress('2')"><div class="nkey-inner"><span class="nkey-digit">2</span></div></button>
-      <button class="nkey" onclick="numpadPress('3')"><div class="nkey-inner"><span class="nkey-digit">3</span></div></button>
-      <button class="nkey nkey-clear" onclick="numpadPress('C')"><div class="nkey-inner"><span class="nkey-digit">CLR</span></div></button>
-      <button class="nkey" onclick="numpadPress('0')"><div class="nkey-inner"><span class="nkey-digit">0</span></div></button>
-      <button class="nkey nkey-back" onclick="numpadPress('.')"><div class="nkey-inner"><span class="nkey-digit">.</span><span class="nkey-sub">decimal</span></div></button>
-      <!-- Row 5: spans -->
-      <button class="nkey nkey-back" onclick="numpadPress('DEL')" style="grid-column:1/3"><div class="nkey-inner"><span class="nkey-digit">⌫</span><span class="nkey-sub">backspace</span></div></button>
-      <button class="nkey nkey-clear" onclick="numpadPress('AC')" style="grid-column:3/4"><div class="nkey-inner"><span class="nkey-digit">AC</span><span class="nkey-sub">all clear</span></div></button>
-    </div>
-  </div>
+  </div><!-- end numpadSection -->
 
   <div class="error-strip" id="errorStrip">⚠ ENTER VALID SPOT PRICE AND WEIGHT</div>
 
@@ -1493,6 +1582,37 @@ body {
       <button class="modal-close" onclick="closeSettings()">✕</button>
     </div>
     <div class="modal-body">
+
+      <!-- Logo Upload -->
+      <div class="settings-section">
+        <div class="settings-section-title">Receipt Logo</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
+          <div id="logoPreview" style="width:64px;height:64px;border-radius:8px;border:1px dashed rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;background:rgba(0,0,0,0.2)">
+            <span id="logoPlaceholder" style="font-size:0.6rem;color:var(--sub-label);letter-spacing:0.05em;text-align:center">NO<br>LOGO</span>
+          </div>
+          <div style="flex:1">
+            <div class="setting-row-label" style="margin-bottom:4px">Upload logo image</div>
+            <div class="setting-row-sublabel" style="margin-bottom:8px">Shown at top of receipt tape. Square images work best.</div>
+            <div style="display:flex;gap:6px">
+              <label class="modal-btn modal-btn-secondary" style="cursor:pointer;display:inline-block">
+                Choose Image
+                <input type="file" id="logoFileInput" accept="image/*" style="display:none">
+              </label>
+              <button class="modal-btn modal-btn-secondary" id="clearLogoBtn" style="color:#ff6b6b">Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Receipt View -->
+      <div class="settings-section">
+        <div class="settings-section-title">Receipt Detail Level</div>
+        <div class="setting-row-sublabel" style="margin-bottom:10px">Toggle between full breakdown (salesperson) or total-only (customer) view on the tape.</div>
+        <div style="display:flex;gap:6px" id="tapeViewGroup">
+          <button class="modal-btn modal-btn-primary" data-view="salesperson" id="viewSalesperson">👤 Salesperson</button>
+          <button class="modal-btn modal-btn-secondary" data-view="customer" id="viewCustomer">🧾 Customer</button>
+        </div>
+      </div>
 
       <!-- Multipliers -->
       <div class="settings-section">
@@ -1600,6 +1720,8 @@ const PROXIES = [
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
 ];
+const LS_KEY = 'goldfix_settings_v1';
+const LS_LOGO_KEY = 'goldfix_logo_v1';
 
 // ── State ──
 const state = {
@@ -1609,6 +1731,7 @@ const state = {
   numpadTarget: 'weight',
   weightStr:    '',
   spotStr:      '',
+  tapeView:     'salesperson', // 'salesperson' | 'customer'
   rates: [
     { id: 1, name: 'Labor', amount: 10, appliesTo: 'both' },
   ],
@@ -1620,21 +1743,50 @@ const state = {
   nextFeeId:       3,
   buyMultiplier:   0.95,
   sellMultiplier:  3,
+  logoDataUrl:     null,
 };
+
+// ── Persistence ──
+function saveSettings() {
+  try {
+    const data = {
+      buyMultiplier:  state.buyMultiplier,
+      sellMultiplier: state.sellMultiplier,
+      rates:          state.rates,
+      fees:           state.fees,
+      nextRateId:     state.nextRateId,
+      nextFeeId:      state.nextFeeId,
+      tapeView:       state.tapeView,
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    if (state.logoDataUrl) {
+      localStorage.setItem(LS_LOGO_KEY, state.logoDataUrl);
+    } else {
+      localStorage.removeItem(LS_LOGO_KEY);
+    }
+  } catch(_) {}
+}
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      Object.assign(state, data);
+    }
+    const logo = localStorage.getItem(LS_LOGO_KEY);
+    if (logo) state.logoDataUrl = logo;
+  } catch(_) {}
+}
 
 // ── Numpad Target ──
 function setNumpadTarget(target) {
   state.numpadTarget = target;
-  // Update buttons
   document.getElementById('inputTargetGroup').querySelectorAll('.key').forEach(b => b.classList.remove('active'));
   document.querySelector(`[data-target="${target}"]`).classList.add('active');
-  // Toggle spot-editing class on LCD screen
-  const screen = document.getElementById('lcdScreen');
-  if (target === 'spot') {
-    screen.classList.add('spot-editing');
-  } else {
-    screen.classList.remove('spot-editing');
-  }
+  // Toggle highlight on the relevant screen
+  document.getElementById('spotSubscreen').classList.toggle('spot-editing', target === 'spot');
+  document.getElementById('lcdScreen').classList.toggle('weight-editing', target === 'weight');
 }
 
 // ── Numpad ──
@@ -1643,7 +1795,6 @@ function numpadPress(key) {
   let s = isSpot ? state.spotStr : state.weightStr;
 
   if (key === 'AC') {
-    // AC clears both
     state.spotStr   = '';
     state.weightStr = '';
     updateSpotDisplay();
@@ -1664,13 +1815,8 @@ function numpadPress(key) {
     else s += key;
   }
 
-  if (isSpot) {
-    state.spotStr = s;
-    updateSpotDisplay();
-  } else {
-    state.weightStr = s;
-    updateWeightDisplay();
-  }
+  if (isSpot) { state.spotStr = s; updateSpotDisplay(); }
+  else        { state.weightStr = s; updateWeightDisplay(); }
   clearResult();
 }
 
@@ -1678,13 +1824,9 @@ function updateSpotDisplay() {
   const el = document.getElementById('spotText');
   const s  = state.spotStr;
   if (!s) {
-    el.textContent  = '–––.––';
-    el.style.color   = 'var(--lcd-green-dim)';
-    el.style.opacity = '0.5';
+    el.textContent = '–––.––'; el.style.color = 'var(--lcd-green-dim)'; el.style.opacity = '0.5';
   } else {
-    el.textContent  = s;
-    el.style.color   = 'var(--lcd-green)';
-    el.style.opacity = '1';
+    el.textContent = s; el.style.color = 'var(--lcd-green)'; el.style.opacity = '1';
   }
 }
 
@@ -1692,14 +1834,13 @@ function updateWeightDisplay() {
   const el = document.getElementById('weightText');
   const s  = state.weightStr;
   if (!s) {
-    el.textContent  = '0';
-    el.style.color   = 'var(--lcd-green-dim)';
-    el.style.opacity = '0.5';
+    el.textContent = '0'; el.style.color = 'var(--lcd-green-dim)'; el.style.opacity = '0.5';
   } else {
-    el.textContent  = s;
-    el.style.color   = 'var(--lcd-green)';
-    el.style.opacity = '1';
+    el.textContent = s; el.style.color = 'var(--lcd-green)'; el.style.opacity = '1';
   }
+  // Keep unit tag in sync
+  const tag = document.getElementById('weightUnitTag');
+  if (tag) tag.textContent = state.unit === 'gram' ? 'g' : 'dwt';
 }
 
 // ── Toggle Groups ──
@@ -1709,6 +1850,7 @@ function setupGroup(groupId, stateKey) {
       document.getElementById(groupId).querySelectorAll('.key').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state[stateKey] = btn.dataset.value;
+      if (stateKey === 'unit') updateWeightDisplay();
       clearResult();
     });
   });
@@ -1717,15 +1859,14 @@ setupGroup('modeGroup', 'mode');
 setupGroup('karatGroup', 'karat');
 setupGroup('unitGroup', 'unit');
 
-// Physical keyboard support
+// Physical keyboard
 document.addEventListener('keydown', e => {
   if (document.getElementById('settingsModal').classList.contains('open')) return;
-  if (['0','1','2','3','4','5','6','7','8','9'].includes(e.key)) { numpadPress(e.key); return; }
+  if ('0123456789'.includes(e.key))   { numpadPress(e.key); return; }
   if (e.key === '.' || e.key === ',') { numpadPress('.'); return; }
-  if (e.key === 'Backspace') { numpadPress('DEL'); return; }
-  if (e.key === 'Delete')    { numpadPress('AC'); return; }
-  if (e.key === 'Enter')     { calculate(); return; }
-  // Tab switches numpad target
+  if (e.key === 'Backspace')          { numpadPress('DEL'); return; }
+  if (e.key === 'Delete')             { numpadPress('AC'); return; }
+  if (e.key === 'Enter')              { calculate(); return; }
   if (e.key === 'Tab') { e.preventDefault(); setNumpadTarget(state.numpadTarget === 'weight' ? 'spot' : 'weight'); return; }
 });
 
@@ -1747,71 +1888,88 @@ function clearResult() {
 function calculate() {
   const goldFix   = parseFloat(state.spotStr);
   const weightRaw = parseFloat(state.weightStr);
-
   if (!goldFix || goldFix <= 0 || !weightRaw || weightRaw <= 0) {
     document.getElementById('errorStrip').classList.add('visible');
     return;
   }
   document.getElementById('errorStrip').classList.remove('visible');
-
   if (state.numpadTarget === 'spot') setNumpadTarget('weight');
 
   let weightGrams, weightDWT;
   if (state.unit === 'gram') {
-    weightGrams = weightRaw;
-    weightDWT   = weightRaw * GRAMS_TO_DWT;
+    weightGrams = weightRaw; weightDWT = weightRaw * GRAMS_TO_DWT;
   } else {
-    weightDWT   = weightRaw;
-    weightGrams = weightRaw * DWT_TO_GRAMS;
+    weightDWT = weightRaw; weightGrams = weightRaw * DWT_TO_GRAMS;
   }
 
   const purity       = parseInt(state.karat) / 24;
   const pricePerGram = goldFix / TROY_OZ_TO_GRAMS;
   const goldValue    = weightGrams * purity * pricePerGram;
+  const pricePerDWT  = pricePerGram * purity * DWT_TO_GRAMS;
+  const pricePerG    = pricePerGram * purity;
+  const isGramUnit   = state.unit === 'gram';
+  const unitLabel    = isGramUnit ? 'g' : 'dwt';
+  const unitPrice    = isGramUnit ? pricePerG : pricePerDWT;
 
   const modeLabels = { buying: 'Buying Price', selling: 'Selling Price', cost: 'Cost Price' };
   let finalPrice;
-  const rows = []; // { label, value, style }
+  const rows = [];
 
   function calcRates(mode) {
     const appRates = state.rates.filter(r => r.appliesTo === mode || r.appliesTo === 'both');
     let total = 0;
+    const isGram = state.unit === 'gram';
     const rateRows = appRates.map(r => {
-      const cost = r.amount * weightDWT;
-      total += cost;
-      return { label: `${r.name}  (${weightDWT.toFixed(2)}dwt × $${r.amount})`, value: fmt(cost) };
+      const cost = r.amount * weightDWT; total += cost;
+      if (isGram) {
+        // Show rate converted to $/gram for clarity
+        const perGram = r.amount / (TROY_OZ_TO_GRAMS / 20); // rate is per DWT → per gram
+        const perGramAmt = r.amount * DWT_TO_GRAMS; // $/dwt × g/dwt = $/g... wait
+        // r.amount is $/dwt. 1 dwt = 1.55517g, so $/g = r.amount / 1.55517
+        const perGramRate = (r.amount / DWT_TO_GRAMS).toFixed(4);
+        return { label: `${r.name}  (${weightGrams.toFixed(3)}g × $${perGramRate}/g)`, value: fmt(cost), salespersonOnly: true };
+      } else {
+        return { label: `${r.name}  (${weightDWT.toFixed(2)}dwt × $${r.amount}/dwt)`, value: fmt(cost), salespersonOnly: true };
+      }
     });
     return { total, rateRows };
   }
 
-  const pricePerDWT = (pricePerGram * purity) * DWT_TO_GRAMS;
-
-  rows.push({ label: `Spot  $${goldFix} / toz`, value: `${fmt(pricePerDWT)} / dwt` });
-  rows.push({ label: `${state.karat}K  ${weightRaw}${state.unit === 'dwt' ? 'dwt' : 'g'}`, value: fmt(goldValue), style: 'divider' });
+  rows.push({ label: `Spot  $${goldFix} / toz`, value: `${fmt(unitPrice)} / ${unitLabel}`, salespersonOnly: true });
+  rows.push({ label: `${state.karat}K  ${weightRaw}${state.unit === 'dwt' ? 'dwt' : 'g'}`, value: fmt(goldValue), style: 'divider', salespersonOnly: true });
 
   if (state.mode === 'buying') {
     finalPrice = goldValue * state.buyMultiplier;
-    rows.push({ label: `× ${state.buyMultiplier} buy rate`, value: '' });
-
+    rows.push({ label: `× ${state.buyMultiplier} buy rate`, value: '', salespersonOnly: true });
   } else if (state.mode === 'selling') {
     const { total: ratesTotal, rateRows } = calcRates('selling');
     const appFees = state.fees.filter(f => f.appliesTo === 'selling' || f.appliesTo === 'both');
     let feesTotal = 0;
-    appFees.forEach(f => { feesTotal += f.amount; rows.push({ label: f.name, value: fmt(f.amount) }); });
+    appFees.forEach(f => { feesTotal += f.amount; rows.push({ label: f.name, value: fmt(f.amount), salespersonOnly: true }); });
     rateRows.forEach(r => rows.push(r));
     const subtotal = goldValue + ratesTotal + feesTotal;
     finalPrice = subtotal * state.sellMultiplier;
-    rows.push({ label: `Subtotal`, value: fmt(subtotal), style: 'divider' });
-    rows.push({ label: `× ${state.sellMultiplier} multiplier`, value: '' });
-
+    rows.push({ label: 'Subtotal', value: fmt(subtotal), style: 'divider', salespersonOnly: true });
+    rows.push({ label: `× ${state.sellMultiplier} multiplier`, value: '', salespersonOnly: true });
   } else {
     const { total: ratesTotal, rateRows } = calcRates('cost');
     const appFees = state.fees.filter(f => f.appliesTo === 'cost' || f.appliesTo === 'both');
     let feesTotal = 0;
-    appFees.forEach(f => { feesTotal += f.amount; rows.push({ label: f.name, value: fmt(f.amount) }); });
+    appFees.forEach(f => { feesTotal += f.amount; rows.push({ label: f.name, value: fmt(f.amount), salespersonOnly: true }); });
     rateRows.forEach(r => rows.push(r));
     finalPrice = goldValue + ratesTotal + feesTotal;
   }
+
+  // Update LCD
+  document.getElementById('resultLabel').textContent = modeLabels[state.mode].toUpperCase();
+  const priceEl = document.getElementById('resultPrice');
+  priceEl.textContent = fmt(finalPrice);
+  priceEl.classList.add('visible');
+  document.getElementById('resultPlaceholder').style.display = 'none';
+  const bd = document.getElementById('lcdBreakdown');
+  bd.innerHTML = `<div class="bd-row"><span>Gold value</span><span class="bd-val">${fmt(goldValue)}</span></div>` +
+                 `<div class="bd-row"><span>${state.karat}K @ ${(purity*100).toFixed(1)}% pure</span><span class="bd-val">${fmt(unitPrice)}/${unitLabel}</span></div>`;
+  bd.classList.add('visible');
 
   showTape(modeLabels[state.mode], rows, finalPrice);
 }
@@ -1821,41 +1979,43 @@ function showTape(modeLabel, rows, total) {
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const isCustomer = state.tapeView === 'customer';
 
-  let html = `
-    <div class="tape-header">
-      <div class="tape-brand">GoldFix</div>
-      <div class="tape-timestamp">${dateStr} &nbsp;·&nbsp; ${timeStr}</div>
-      <div class="tape-mode-badge">${modeLabel}</div>
-    </div>
-  `;
+  let html = `<div class="tape-header">`;
+  if (state.logoDataUrl) {
+    html += `<img src="${state.logoDataUrl}" style="max-width:90px;max-height:60px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto">`;
+  } else {
+    html += `<div class="tape-brand">GoldFix</div>`;
+  }
+  html += `<div class="tape-timestamp">${dateStr} &nbsp;·&nbsp; ${timeStr}</div>
+    <div class="tape-mode-badge">${modeLabel}</div>
+  </div>`;
 
-  let delay = 0.6;
-  rows.forEach(r => {
-    const cls = r.style === 'divider' ? 'tape-row tape-divider' : 'tape-row';
-    const valHtml = r.value ? `<span class="tape-row-val">${r.value}</span>` : '';
-    html += `<div class="${cls}" style="animation-delay:${delay.toFixed(2)}s">
-      <span class="tape-row-label">${r.label}</span>${valHtml}
-    </div>`;
-    delay += 0.07;
-  });
+  if (!isCustomer) {
+    let delay = 0.6;
+    rows.forEach(r => {
+      const cls = r.style === 'divider' ? 'tape-row tape-divider' : 'tape-row';
+      const valHtml = r.value ? `<span class="tape-row-val">${r.value}</span>` : '';
+      html += `<div class="${cls}" style="animation-delay:${delay.toFixed(2)}s">
+        <span class="tape-row-label">${r.label}</span>${valHtml}
+      </div>`;
+      delay += 0.07;
+    });
+  }
 
-  delay += 0.05;
-  html += `
-    <div class="tape-total-row" style="animation-delay:${delay.toFixed(2)}s">
-      <span class="tape-total-label">Total</span>
-      <span class="tape-total-value">${fmt(total)}</span>
-    </div>
-  `;
+  const totalDelay = isCustomer ? 0.6 : (0.6 + rows.length * 0.07 + 0.05);
+  html += `<div class="tape-total-row" style="animation-delay:${totalDelay.toFixed(2)}s">
+    <span class="tape-total-label">${isCustomer ? 'Price' : 'Total'}</span>
+    <span class="tape-total-value">${fmt(total)}</span>
+  </div>`;
 
-  delay += 0.15;
-  html += `<div class="tape-footer" style="animation-delay:${delay.toFixed(2)}s">
+  const footerDelay = totalDelay + 0.15;
+  html += `<div class="tape-footer" style="animation-delay:${footerDelay.toFixed(2)}s">
     GF-1 Pro &nbsp;·&nbsp; thank you
   </div>`;
 
   content.innerHTML = html;
 
-  // Reset body animation
   const body = document.getElementById('tapeBody');
   body.style.animation = 'none';
   void body.offsetWidth;
@@ -1863,15 +2023,13 @@ function showTape(modeLabel, rows, total) {
 
   document.getElementById('tapeOverlay').classList.add('printing');
 
-  // Subtle print sound
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     for (let i = 0; i < 8; i++) {
       const buf = ctx.createBuffer(1, ctx.sampleRate * 0.035, ctx.sampleRate);
       const data = buf.getChannelData(0);
       for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * (1 - j / data.length) * 0.12;
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
+      const src = ctx.createBufferSource(); src.buffer = buf;
       const gain = ctx.createGain(); gain.gain.value = 0.5;
       src.connect(gain); gain.connect(ctx.destination);
       src.start(ctx.currentTime + i * 0.055);
@@ -1882,27 +2040,20 @@ function showTape(modeLabel, rows, total) {
 function closeTape() {
   const overlay = document.getElementById('tapeOverlay');
   const body    = document.getElementById('tapeBody');
-  const isMobile = window.innerWidth <= 480;
+  const isMobile = window.innerWidth <= 600;
   if (isMobile) {
-    body.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    body.style.opacity = '0';
-    body.style.transform = 'translateY(-20px)';
+    body.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+    body.style.opacity = '0'; body.style.transform = 'translateY(-16px)';
     setTimeout(() => {
       overlay.classList.remove('printing');
-      body.style.transition = '';
-      body.style.opacity = '';
-      body.style.transform = '';
-    }, 320);
+      body.style.transition = body.style.opacity = body.style.transform = '';
+    }, 280);
   } else {
     body.style.animation = 'tapeRetract 0.4s cubic-bezier(0.55, 0, 0.8, 0) forwards';
-    setTimeout(() => {
-      overlay.classList.remove('printing');
-      body.style.animation = '';
-    }, 420);
+    setTimeout(() => { overlay.classList.remove('printing'); body.style.animation = ''; }, 420);
   }
 }
 
-// Wire tape close button
 document.getElementById('tapeClose').addEventListener('click', closeTape);
 
 // ── Live Spot Price ──
@@ -1910,44 +2061,36 @@ async function fetchGoldPrice() {
   const badge = document.getElementById('liveBadge');
   const stamp = document.getElementById('priceTimestamp');
   const rBtn  = document.getElementById('refreshBtn');
-
-  // Switch back to weight target when live-fetching
   setNumpadTarget('weight');
-
-  badge.textContent = '◌ FETCH';
-  badge.className   = 'lcd-live-badge loading';
-  stamp.textContent = 'Fetching live price…';
-  rBtn.textContent  = '↺ LOADING';
-
+  badge.textContent = '◌ FETCH'; badge.className = 'lcd-live-badge loading';
+  stamp.textContent = 'Fetching…'; rBtn.textContent = '↺ …';
   const ts  = Date.now();
   const url = `https://kds2.kitco.com/getPM?apikey=${KITCO_KEY}&type=xml&df=3&tf=3&symbol=AU&currency=USD&unit=OUNCE&tz=EST&kgx=no&dummy=${ts}`;
-
   let price = null;
   for (const mkProxy of PROXIES) {
     try {
-      const res  = await fetch(mkProxy(url), { signal: AbortSignal.timeout(8000) });
+      const res = await fetch(mkProxy(url), { signal: AbortSignal.timeout(8000) });
       if (!res.ok) continue;
       const text = await res.text();
-      const m    = text.match(/<Mid>([\d.]+)<\/Mid>/i);
+      const m = text.match(/<Mid>([\d.]+)<\/Mid>/i);
       if (m) { price = parseFloat(m[1]); break; }
     } catch (_) {}
   }
-
   rBtn.textContent = '↻ REFRESH';
-
   if (price && price > 0) {
     state.spotStr = price.toFixed(2);
     updateSpotDisplay();
-    badge.textContent = '◉ LIVE';
-    badge.className   = 'lcd-live-badge live';
+    badge.textContent = '◉ LIVE'; badge.className = 'lcd-live-badge live';
     const d = new Date();
-    stamp.textContent = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + '  ' +
-                        d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+    const ts2 = d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' +
+                d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+    stamp.textContent = ts2;
+    const shortEl = document.getElementById('spotTimestampShort');
+    if (shortEl) shortEl.textContent = ts2;
     clearResult();
   } else {
-    badge.textContent = '✕ OFFLINE';
-    badge.className   = 'lcd-live-badge error';
-    stamp.textContent = 'Press SPOT → enter price manually';
+    badge.textContent = '✕ OFFLINE'; badge.className = 'lcd-live-badge error';
+    stamp.textContent = 'Enter manually via SPOT';
   }
 }
 
@@ -1957,6 +2100,8 @@ function openSettings() {
   document.getElementById('sellMultInput').value = state.sellMultiplier;
   renderRateList();
   renderFeeList();
+  updateLogoPreview();
+  updateTapeViewButtons();
   document.getElementById('settingsModal').classList.add('open');
 }
 
@@ -1965,34 +2110,54 @@ function closeSettings() {
   const sellM = parseFloat(document.getElementById('sellMultInput').value);
   if (!isNaN(buyM)  && buyM  >= 0) state.buyMultiplier  = buyM;
   if (!isNaN(sellM) && sellM >= 0) state.sellMultiplier = sellM;
-  hideRateForm();
-  hideFeeForm();
+  hideRateForm(); hideFeeForm();
   document.getElementById('settingsModal').classList.remove('open');
+  saveSettings();
   clearResult();
+}
+
+function updateTapeViewButtons() {
+  document.getElementById('viewSalesperson').className = state.tapeView === 'salesperson' ? 'modal-btn modal-btn-primary' : 'modal-btn modal-btn-secondary';
+  document.getElementById('viewCustomer').className    = state.tapeView === 'customer'    ? 'modal-btn modal-btn-primary' : 'modal-btn modal-btn-secondary';
+}
+
+function updateLogoPreview() {
+  const preview = document.getElementById('logoPreview');
+  const placeholder = document.getElementById('logoPlaceholder');
+  if (state.logoDataUrl) {
+    const existing = preview.querySelector('img');
+    if (existing) existing.remove();
+    const img = document.createElement('img');
+    img.src = state.logoDataUrl;
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:6px';
+    placeholder.style.display = 'none';
+    preview.appendChild(img);
+  } else {
+    const existing = preview.querySelector('img');
+    if (existing) existing.remove();
+    placeholder.style.display = '';
+  }
 }
 
 // ─ Rate form helpers ─
 let editingRateId = null;
-
 function showRateForm(r) {
   editingRateId = r ? r.id : null;
-  document.getElementById('newRateName').value    = r ? r.name   : '';
+  document.getElementById('newRateName').value    = r ? r.name : '';
   document.getElementById('newRateAmount').value  = r ? r.amount : '';
   document.getElementById('newRateApplies').value = r ? r.appliesTo : 'both';
   document.getElementById('addRateForm').style.display = 'block';
   document.getElementById('addRateToggleBtn').textContent = '− Cancel';
   document.getElementById('newRateName').focus();
 }
-
 function hideRateForm() {
   editingRateId = null;
   document.getElementById('addRateForm').style.display = 'none';
   document.getElementById('addRateToggleBtn').textContent = '+ Add Rate';
 }
-
 function saveRate() {
-  const name      = document.getElementById('newRateName').value.trim();
-  const amount    = parseFloat(document.getElementById('newRateAmount').value);
+  const name = document.getElementById('newRateName').value.trim();
+  const amount = parseFloat(document.getElementById('newRateAmount').value);
   const appliesTo = document.getElementById('newRateApplies').value;
   if (!name || isNaN(amount) || amount < 0) {
     document.getElementById('newRateName').style.borderColor = name ? '' : 'rgba(255,80,80,0.6)';
@@ -2001,17 +2166,14 @@ function saveRate() {
   }
   document.getElementById('newRateName').style.borderColor = '';
   document.getElementById('newRateAmount').style.borderColor = '';
-
   if (editingRateId !== null) {
     const r = state.rates.find(r => r.id === editingRateId);
     if (r) Object.assign(r, { name, amount, appliesTo });
   } else {
     state.rates.push({ id: state.nextRateId++, name, amount, appliesTo });
   }
-  hideRateForm();
-  renderRateList();
+  hideRateForm(); renderRateList();
 }
-
 function renderRateList() {
   const list = document.getElementById('rateList');
   if (!state.rates.length) {
@@ -2024,35 +2186,31 @@ function renderRateList() {
       <div class="fee-item-applies">${r.appliesTo}</div>
       <div class="fee-item-amount">$${r.amount.toFixed(2)}<span style="font-size:0.65rem;color:var(--sub-label)">/dwt</span></div>
       <div class="fee-item-actions">
-        <button class="fee-action-btn" data-edit-rate="${r.id}" title="Edit">✎</button>
-        <button class="fee-action-btn del" data-del-rate="${r.id}" title="Remove">✕</button>
+        <button class="fee-action-btn" data-edit-rate="${r.id}">✎</button>
+        <button class="fee-action-btn del" data-del-rate="${r.id}">✕</button>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 // ─ Fee form helpers ─
 let editingFeeId = null;
-
 function showFeeForm(f) {
   editingFeeId = f ? f.id : null;
-  document.getElementById('newFeeName').value    = f ? f.name   : '';
+  document.getElementById('newFeeName').value    = f ? f.name : '';
   document.getElementById('newFeeAmount').value  = f ? f.amount : '';
   document.getElementById('newFeeApplies').value = f ? f.appliesTo : 'selling';
   document.getElementById('addFeeForm').style.display = 'block';
   document.getElementById('addFeeToggleBtn').textContent = '− Cancel';
   document.getElementById('newFeeName').focus();
 }
-
 function hideFeeForm() {
   editingFeeId = null;
   document.getElementById('addFeeForm').style.display = 'none';
   document.getElementById('addFeeToggleBtn').textContent = '+ Add Fee';
 }
-
 function saveFee() {
-  const name      = document.getElementById('newFeeName').value.trim();
-  const amount    = parseFloat(document.getElementById('newFeeAmount').value);
+  const name = document.getElementById('newFeeName').value.trim();
+  const amount = parseFloat(document.getElementById('newFeeAmount').value);
   const appliesTo = document.getElementById('newFeeApplies').value;
   if (!name || isNaN(amount) || amount < 0) {
     document.getElementById('newFeeName').style.borderColor = name ? '' : 'rgba(255,80,80,0.6)';
@@ -2061,17 +2219,14 @@ function saveFee() {
   }
   document.getElementById('newFeeName').style.borderColor = '';
   document.getElementById('newFeeAmount').style.borderColor = '';
-
   if (editingFeeId !== null) {
     const f = state.fees.find(f => f.id === editingFeeId);
     if (f) Object.assign(f, { name, amount, appliesTo });
   } else {
     state.fees.push({ id: state.nextFeeId++, name, amount, appliesTo });
   }
-  hideFeeForm();
-  renderFeeList();
+  hideFeeForm(); renderFeeList();
 }
-
 function renderFeeList() {
   const list = document.getElementById('feeList');
   if (!state.fees.length) {
@@ -2084,63 +2239,71 @@ function renderFeeList() {
       <div class="fee-item-applies">${f.appliesTo}</div>
       <div class="fee-item-amount">$${f.amount.toFixed(2)}</div>
       <div class="fee-item-actions">
-        <button class="fee-action-btn" data-edit-fee="${f.id}" title="Edit">✎</button>
-        <button class="fee-action-btn del" data-del-fee="${f.id}" title="Remove">✕</button>
+        <button class="fee-action-btn" data-edit-fee="${f.id}">✎</button>
+        <button class="fee-action-btn del" data-del-fee="${f.id}">✕</button>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ─ Wire up settings buttons via event delegation ─
+// ─ Wire up all settings buttons ─
 document.addEventListener('DOMContentLoaded', () => {
-  // Rate toggle button
-  document.getElementById('addRateToggleBtn').addEventListener('click', () => {
-    const form = document.getElementById('addRateForm');
-    if (form.style.display === 'block') hideRateForm();
-    else showRateForm(null);
-  });
+  // Load saved settings on boot
+  loadSettings();
+  updateLogoPreview();
 
-  // Save / Cancel rate
+  // Apply loaded state to UI
+  updateWeightDisplay(); // syncs unit tag
+  setNumpadTarget('weight'); // default weight editing active
+
+  // Rate add/save/cancel
+  document.getElementById('addRateToggleBtn').addEventListener('click', () => {
+    document.getElementById('addRateForm').style.display === 'block' ? hideRateForm() : showRateForm(null);
+  });
   document.getElementById('saveRateBtn').addEventListener('click', saveRate);
   document.getElementById('cancelRateBtn').addEventListener('click', hideRateForm);
-
-  // Edit / Delete rate (event delegation on modal body)
   document.getElementById('rateList').addEventListener('click', e => {
     const editBtn = e.target.closest('[data-edit-rate]');
     const delBtn  = e.target.closest('[data-del-rate]');
-    if (editBtn) {
-      const r = state.rates.find(r => r.id === parseInt(editBtn.dataset.editRate));
-      if (r) showRateForm(r);
-    }
-    if (delBtn) {
-      state.rates = state.rates.filter(r => r.id !== parseInt(delBtn.dataset.delRate));
-      renderRateList();
-    }
+    if (editBtn) { const r = state.rates.find(r => r.id === parseInt(editBtn.dataset.editRate)); if (r) showRateForm(r); }
+    if (delBtn)  { state.rates = state.rates.filter(r => r.id !== parseInt(delBtn.dataset.delRate)); renderRateList(); }
   });
 
-  // Fee toggle button
+  // Fee add/save/cancel
   document.getElementById('addFeeToggleBtn').addEventListener('click', () => {
-    const form = document.getElementById('addFeeForm');
-    if (form.style.display === 'block') hideFeeForm();
-    else showFeeForm(null);
+    document.getElementById('addFeeForm').style.display === 'block' ? hideFeeForm() : showFeeForm(null);
   });
-
-  // Save / Cancel fee
   document.getElementById('saveFeeBtn').addEventListener('click', saveFee);
   document.getElementById('cancelFeeBtn').addEventListener('click', hideFeeForm);
-
-  // Edit / Delete fee
   document.getElementById('feeList').addEventListener('click', e => {
     const editBtn = e.target.closest('[data-edit-fee]');
     const delBtn  = e.target.closest('[data-del-fee]');
-    if (editBtn) {
-      const f = state.fees.find(f => f.id === parseInt(editBtn.dataset.editFee));
-      if (f) showFeeForm(f);
-    }
-    if (delBtn) {
-      state.fees = state.fees.filter(f => f.id !== parseInt(delBtn.dataset.delFee));
-      renderFeeList();
-    }
+    if (editBtn) { const f = state.fees.find(f => f.id === parseInt(editBtn.dataset.editFee)); if (f) showFeeForm(f); }
+    if (delBtn)  { state.fees = state.fees.filter(f => f.id !== parseInt(delBtn.dataset.delFee)); renderFeeList(); }
+  });
+
+  // Tape view toggle
+  document.getElementById('tapeViewGroup').addEventListener('click', e => {
+    const btn = e.target.closest('[data-view]');
+    if (!btn) return;
+    state.tapeView = btn.dataset.view;
+    updateTapeViewButtons();
+  });
+
+  // Logo upload
+  document.getElementById('logoFileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      state.logoDataUrl = ev.target.result;
+      updateLogoPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('clearLogoBtn').addEventListener('click', () => {
+    state.logoDataUrl = null;
+    document.getElementById('logoFileInput').value = '';
+    updateLogoPreview();
   });
 
   // Close modal on backdrop click
@@ -2152,5 +2315,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Boot ──
 fetchGoldPrice();
 </script>
+
 </body>
 </html>
+
