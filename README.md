@@ -87,25 +87,6 @@ Conversions used:
 
 ---
 
-## Deployment
-
-### Netlify Drop (easiest — no account needed)
-1. Rename `gold-calculator-v5-mobile.html` → `index.html`
-2. Go to [app.netlify.com/drop](https://app.netlify.com/drop)
-3. Drag and drop the file
-4. Done — you get a live `https://` URL instantly
-
-### GitHub Pages (free, permanent)
-1. Create a repo at [github.com](https://github.com)
-2. Upload `index.html`
-3. Go to **Settings → Pages**, set source to `main` branch
-4. Your URL: `https://yourusername.github.io/reponame`
-
-### Custom domain
-Both Netlify and GitHub Pages support custom domains. Buy a domain from Namecheap or Google Domains, then follow the provider's DNS setup guide.
-
----
-
 ## Mobile / PWA
 
 The app is fully responsive for portrait and landscape phones. It includes the necessary meta tags to run as a full-screen progressive web app:
@@ -125,10 +106,3 @@ Once installed it opens with no browser chrome, just like a native app.
 - Fonts: [Barlow Condensed](https://fonts.google.com/specimen/Barlow+Condensed) + [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono) via Google Fonts
 - Sound: Web Audio API for the print sound effect
 
----
-
-## File
-
-| File | Description |
-|------|-------------|
-| `gold-calculator-v5-mobile.html` | The full app — rename to `index.html` to deploy |
